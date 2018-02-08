@@ -13,7 +13,20 @@ namespace Commander.NET
 
 		public static T Parse<T>(string[] args) where T : new()
 		{
+			T obj = new T();
 
+			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
+			{
+				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
+
+				foreach (var x in param.Names)
+				{
+					Console.WriteLine(x);
+				}
+
+			}
+
+			return obj;
 		}
 
 		static IEnumerable<MemberInfo> GetParameterMembers<T, Q>() where Q : Attribute

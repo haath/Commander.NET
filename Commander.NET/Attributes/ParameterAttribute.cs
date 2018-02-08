@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Commander.NET.Attributes
 {
@@ -13,15 +15,15 @@ namespace Commander.NET.Attributes
 		public string[] Names { get; private set; }
 
 		/// <summary>
-		/// A description of this parameter. Will be displayed when generating the usage string.
-		/// </summary>
-		public string Description;
-
-		/// <summary>
 		/// If a Required option is missing when parsing, the parser will throw a ParameterException.
 		/// <para>By default, a parameter is considered required when the default value of the corresponding field is null.</para>
 		/// </summary>
 		public bool? Required = null;
+
+		/// <summary>
+		/// A description of this parameter. Will be displayed when generating the usage string.
+		/// </summary>
+		public string Description;
 
 		public bool Password = false;
 
@@ -32,7 +34,19 @@ namespace Commander.NET.Attributes
 		/// <param name="names"></param>
 		public ParameterAttribute(params string[] names)
 		{
-			Names = names;
+			Func<string, string, bool> Match = (x, y) => Regex.Match(x, y).Success;
+
+			Names = names.Select(n =>
+			{
+				if (Match(n, @"^-\w$") || Match(n, @"^--\w{2,}$"))
+					return n;
+				else if (Match(n, @"^\w$"))
+					return "-" + n;
+				else if (Match(n, @"^\w{2,}$"))
+					return "--" + n;
+				else
+					throw new FormatException("Invalid parameter name: " + n);
+			}).ToArray();
 		}
     }
 }

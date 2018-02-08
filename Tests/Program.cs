@@ -9,15 +9,22 @@ using Commander.NET.Attributes;
 
 namespace Tests
 {
+	class Test
+	{
+		[Parameter("i", "--id", Description = "the ID")]
+		public int ID;
+
+		[Parameter("-n", "--name", Description = "the name")]
+		public string Name;
+	}
+
 	class Program
 	{
-		[Parameter("x")]
-		int x;
 
 		static void Main(string[] args)
 		{
-			string[] y = { "asdf" };
-			Console.WriteLine(args.Length);
+			string[] y = { "-i", "123" };
+			CommanderParser.Parse<Test>(y);
 		}
 	}
 }
