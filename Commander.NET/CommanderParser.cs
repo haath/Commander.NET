@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
@@ -63,9 +64,55 @@ namespace Commander.NET
 			}
 		}
 
+		static void SetValue<T>(T obj, MemberInfo member, string value)
+		{
+			object convertedValue = ValueParse(GetType(member), value);
+
+			SetValue(obj, member, convertedValue);
+		}
+
+		static object ValueParse(Type type, string value)
+		{
+			object convertedValue = value;
+
+			if (type == typeof(int))
+			{
+				convertedValue = int.Parse(value);
+			}
+			else if (type == typeof(uint))
+			{
+				convertedValue = uint.Parse(value);
+			}
+			else if (type == typeof(long))
+			{
+				convertedValue = long.Parse(value);
+			}
+			else if (type == typeof(double))
+			{
+				convertedValue = double.Parse(value);
+			}
+			else if (type == typeof(float))
+			{
+				convertedValue = float.Parse(value);
+			}
+			else if (type.IsArray)
+			{
+				convertedValue = value.Split(',');
+				return convertedValue;
+				string[] values = value.Split(',');
+				object[] converted = new object[values.Length];
+				for (int i = 0; i < values.Length; i++)
+				{
+					converted[i] = ValueParse(type.GetElementType(), values[i]);
+				}
+				convertedValue = converted;
+			}
+
+			return convertedValue;
+		}
+
 		static void SetValue<T>(T obj, MemberInfo member, object value)
 		{
-
 			if (member is PropertyInfo)
 			{
 				(member as PropertyInfo).SetValue(obj, value);

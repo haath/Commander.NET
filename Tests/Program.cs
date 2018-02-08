@@ -12,14 +12,22 @@ namespace Tests
 	class Test
 	{
 		[Parameter("i", "--id", Description = "the ID")]
-		public string ID;
+		public int ID;
 
 		[Parameter("-n", "--name", Description = "the name")]
 		public string Name;
 
+		[Parameter("-s", "--stuff", Description = "some stuff")]
+		public string[] Stuff;
+
 		public override string ToString()
 		{
-			return ID + " " + Name;
+			string s = ID + " " + Name + " ";
+			foreach (string st in Stuff)
+			{
+				s += "," + st;
+			}
+			return s;
 		}
 	}
 
@@ -28,7 +36,7 @@ namespace Tests
 
 		static void Main(string[] args)
 		{
-			string[] y = { "-i", "123", "--name", "george" };
+			string[] y = { "-i", "123", "--name", "george", "-s", "one,two" };
 			Test t = CommanderParser.Parse<Test>(y);
 			Console.WriteLine(t);
 		}
