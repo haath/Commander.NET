@@ -13,17 +13,37 @@ namespace Commander.NET
 
 		public static T Parse<T>(string[] args) where T : new()
 		{
+			List<string> positionalArguments = new List<string>();
+
+			for (int i = 0; i < args.Length; i++)
+			{
+				if (!args[i].StartsWith("-")
+					&& (i == 0 || !args[i - 1].StartsWith("-")))
+				{
+					positionalArguments.Add(args[i]);
+				}
+			}
+
 			T obj = new T();
 
 			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
 
-				foreach (var x in param.Names)
+				for (int i = 0; i < args.Length; i++)
 				{
-					Console.WriteLine(x);
+					if (param.MatchesName(args[i]))
+					{
+						if (GetType(member) == typeof(bool))
+						{
+							SetValue(obj, member, true);
+						}
+						else if (i < args.Length - 1 && !args[i + 1].StartsWith("-"))
+						{
+							SetValue(obj, member, args[i + 1]);
+						}
+					}
 				}
-
 			}
 
 			return obj;
@@ -45,6 +65,7 @@ namespace Commander.NET
 
 		static void SetValue<T>(T obj, MemberInfo member, object value)
 		{
+
 			if (member is PropertyInfo)
 			{
 				(member as PropertyInfo).SetValue(obj, value);
@@ -64,6 +85,19 @@ namespace Commander.NET
 			else if (member is FieldInfo)
 			{
 				return (member as FieldInfo).GetValue(new T());
+			}
+			return null;
+		}
+
+		static Type GetType(MemberInfo member)
+		{
+			if (member is PropertyInfo)
+			{
+				return (member as PropertyInfo).PropertyType;
+			}
+			else if (member is FieldInfo)
+			{
+				return (member as FieldInfo).FieldType;
 			}
 			return null;
 		}

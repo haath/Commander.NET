@@ -34,8 +34,6 @@ namespace Commander.NET.Attributes
 		/// <param name="names"></param>
 		public ParameterAttribute(params string[] names)
 		{
-			Func<string, string, bool> Match = (x, y) => Regex.Match(x, y).Success;
-
 			Names = names.Select(n =>
 			{
 				if (Match(n, @"^-\w$") || Match(n, @"^--\w{2,}$"))
@@ -48,5 +46,30 @@ namespace Commander.NET.Attributes
 					throw new FormatException("Invalid parameter name: " + n);
 			}).ToArray();
 		}
-    }
+
+		internal bool MatchesName(string name)
+		{
+			if (Names.Contains(name))
+				return true;
+
+			if (Match(name, @"^-\w{2,}$"))
+			{
+				// Multiple flags
+				foreach (string singleCharacterName in Names.Where(n => n.Length == 2))
+				{
+					string flag = singleCharacterName.Substring(1);
+
+					if (name.Contains(flag))
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+		static bool Match(string input, string regex)
+		{
+			return Regex.Match(input, regex).Success;
+		}
+	}
 }
