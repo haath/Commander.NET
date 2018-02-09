@@ -4,18 +4,13 @@ using System.Text;
 
 namespace Commander.NET.Exceptions
 {
-    public class ParameterException : Exception
+    public class ParameterMissingException : Exception
     {
-		string[] parameterNames;
+		string parameterName;
 
-		public string ParameterName
+		internal ParameterMissingException(string parameterName)
 		{
-			get { return parameterNames[0]; }
-		}
-
-		internal ParameterException(string[] parameterNames)
-		{
-			this.parameterNames = parameterNames;
+			this.parameterName = parameterName;
 		}
 
 		public override string Message
@@ -23,7 +18,7 @@ namespace Commander.NET.Exceptions
 			get
 			{
 				StringBuilder msg = new StringBuilder("Parameter missing: ");
-				msg.Append(ParameterName);
+				msg.Append(parameterName);
 				return msg.ToString();
 			}
 		}

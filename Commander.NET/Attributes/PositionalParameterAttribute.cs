@@ -8,10 +8,12 @@ namespace Commander.NET.Attributes
 	public class PositionalParameterAttribute : CommanderAttribute
 	{
 		public readonly int Index;
+		public readonly string Name;
 
-		public PositionalParameterAttribute(int index)
+		public PositionalParameterAttribute(int index, string name)
 		{
 			Index = index;
+			Name = name;
 		}
     }
 }

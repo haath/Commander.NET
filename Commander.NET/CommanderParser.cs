@@ -12,6 +12,68 @@ namespace Commander.NET
 {
     public static class CommanderParser
     {
+		public static string Usage<T>(string executableName = "<exe>") where T : new()
+		{
+			const string indendation = "    ";
+
+			StringBuilder usage = new StringBuilder();
+			usage.AppendFormat("Usage: {0} [options] ", executableName);
+
+			IOrderedEnumerable<PositionalParameterAttribute> positionalParams = GetParameterMembers<T, PositionalParameterAttribute>()
+																		.Select(member => member.GetCustomAttribute<PositionalParameterAttribute>())
+																		.OrderBy(param => param.Index);
+
+
+			foreach (PositionalParameterAttribute param in positionalParams)
+			{
+				// Print example line
+				usage.AppendFormat("<{0}> ", param.Name);
+			}
+
+			usage.AppendLine();
+			
+			foreach (PositionalParameterAttribute param in positionalParams)
+			{
+				// Print positional argument descriptions
+				if (param.Description != null)
+				{
+					usage.AppendFormat("{0}{1}: {2}\n", indendation, param.Name, param.Description);
+				}
+			}
+
+			usage.AppendLine("Options:");
+
+			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
+			{
+				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
+				object defaultValue = GetDefaultValue<T>(member);
+				bool required = ParamRequired<T>(param, member);
+
+				usage.Append(indendation).Append(required ? "* " : "  ");
+
+				for (int i = 0; i < param.Names.Length; i++)
+				{
+					if (i != 0)
+					{
+						usage.Append(", ");
+					}
+					usage.Append(param.Names[i]);
+				}
+				usage.AppendLine();
+
+				if (param.Description != null)
+				{
+					usage.AppendFormat("{0}{1}{2}\n", indendation, indendation, param.Description);
+				}
+
+				if (!required && defaultValue != null)
+				{
+					usage.AppendFormat("{0}{1}Default: {2}\n", indendation, indendation, defaultValue);
+				}
+			}
+
+			return usage.ToString();
+		}
 
 		public static T Parse<T>(string[] args) where T : new()
 		{
@@ -85,7 +147,12 @@ namespace Commander.NET
 						.FirstOrDefault();
 					if (value != null)
 					{
-						SetValue(obj, member, value);
+						SetValue(obj, member, param.Names[0], value);
+					}
+					else if (ParamRequired<T>(param, member))
+					{
+						// Required parameter missing
+						throw new ParameterMissingException(param.Names[0]);
 					}
 				}
 			}
@@ -96,11 +163,21 @@ namespace Commander.NET
 
 				if (param.Index < positionalArguments.Count)
 				{
-					SetValue(obj, member, positionalArguments[param.Index]);
+					SetValue(obj, member, param.Name, positionalArguments[param.Index]);
+				}
+				else if (ParamRequired<T>(param, member))
+				{
+					// Required parameter missing
+					throw new ParameterMissingException(param.Name);
 				}
 			}
 
 			return obj;
+		}
+
+		static bool ParamRequired<T>(CommanderAttribute param, MemberInfo member) where T : new()
+		{
+			return param.Required ?? GetDefaultValue<T>(member) == null;
 		}
 
 		static bool Match(string input, string regex)
@@ -122,11 +199,30 @@ namespace Commander.NET
 			}
 		}
 
-		static void SetValue<T>(T obj, MemberInfo member, string value)
+		static void SetValue<T>(T obj, MemberInfo member, string parameterName, string value)
 		{
-			object convertedValue = ValueParse(GetType(member), value);
+			try
+			{
+				object convertedValue = ValueParse(GetType(member), value);
 
-			SetValue(obj, member, convertedValue);
+				SetValue(obj, member, convertedValue);
+			}
+			catch (FormatException)
+			{
+				throw new ParameterFormatException(parameterName, value, member.GetType());
+			}
+		}
+
+		static void SetValue<T>(T obj, MemberInfo member, object value)
+		{
+			if (member is PropertyInfo)
+			{
+				(member as PropertyInfo).SetValue(obj, value);
+			}
+			else if (member is FieldInfo)
+			{
+				(member as FieldInfo).SetValue(obj, value);
+			}
 		}
 
 		static object ValueParse(Type type, string value)
@@ -167,18 +263,6 @@ namespace Commander.NET
 			}
 
 			return convertedValue;
-		}
-
-		static void SetValue<T>(T obj, MemberInfo member, object value)
-		{
-			if (member is PropertyInfo)
-			{
-				(member as PropertyInfo).SetValue(obj, value);
-			}
-			else if (member is FieldInfo)
-			{
-				(member as FieldInfo).SetValue(obj, value);
-			}
 		}
 
 		static object GetDefaultValue<T>(MemberInfo member) where T : new()

@@ -38,7 +38,8 @@ namespace Commander.NET.Attributes
 					return "--" + n;
 				else
 					throw new FormatException("Invalid parameter name: " + n);
-			}).ToArray();
+			}).OrderBy(n => n)
+			.ToArray();
 		}
 
 		internal bool MatchesName(string name)
