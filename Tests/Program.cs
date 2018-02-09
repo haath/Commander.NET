@@ -11,7 +11,7 @@ namespace Tests
 {
 	class Test
 	{
-		[Parameter("i", "--id", Description = "the ID")]
+		[Parameter("i", "--id", Description = "the ID", Required = Required.Yes)]
 		public int ID = 12;
 
 		[Parameter("-n", "--name", Description = "the name")]
@@ -50,7 +50,7 @@ namespace Tests
 			Test t = CommanderParser.Parse<Test>(y);
 			Console.WriteLine(t);
 			Console.WriteLine();
-			Console.WriteLine(CommanderParser.Usage<Test>());
+			Console.WriteLine(CommanderParser.Usage<Test>("penis.exe"));
 		}
 	}
 }

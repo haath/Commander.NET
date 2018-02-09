@@ -12,10 +12,8 @@ namespace Commander.NET
 {
     public static class CommanderParser
     {
-		public static string Usage<T>(string executableName = "<exe>") where T : new()
+		public static string Usage<T>(string executableName = "<exe>", string indendation = "    ") where T : new()
 		{
-			const string indendation = "    ";
-
 			StringBuilder usage = new StringBuilder();
 			usage.AppendFormat("Usage: {0} [options] ", executableName);
 
@@ -177,7 +175,8 @@ namespace Commander.NET
 
 		static bool ParamRequired<T>(CommanderAttribute param, MemberInfo member) where T : new()
 		{
-			return param.Required ?? GetDefaultValue<T>(member) == null;
+			return param.Required == Required.Yes 
+				|| (param.Required == Required.Default && GetDefaultValue<T>(member) == null);
 		}
 
 		static bool Match(string input, string regex)
