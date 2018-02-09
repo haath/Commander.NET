@@ -6,6 +6,7 @@ using System.Text;
 
 using Commander.NET.Attributes;
 using Commander.NET.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace Commander.NET
 {
@@ -14,12 +15,49 @@ namespace Commander.NET
 
 		public static T Parse<T>(string[] args) where T : new()
 		{
+			HashSet<string> booleanKeys = new HashSet<string>();
+			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
+			{
+				if (GetType(member) == typeof(bool))
+				{
+					foreach (string booleanKey in member.GetCustomAttribute<ParameterAttribute>().Keys)
+						booleanKeys.Add(booleanKey);
+				}
+			}
+
+
 			List<string> positionalArguments = new List<string>();
+			List<string> flags = new List<string>();
+			Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+
+			Func<string, bool> GetBool = (key) =>
+			{
+				return flags.Contains(key) || keyValuePairs.ContainsKey(key);
+			};
 
 			for (int i = 0; i < args.Length; i++)
 			{
-				if (!args[i].StartsWith("-")
-					&& (i == 0 || !args[i - 1].StartsWith("-")))
+				if (Match(args[i], @"^-\w$") || Match(args[i], @"^--\w{2,}$"))
+				{
+					string key = args[i].TrimStart('-');
+
+					if (!booleanKeys.Contains(key) && i < args.Length - 1 && !args[i + 1].StartsWith("-"))
+					{
+						keyValuePairs.Add(key, args[i + 1]);
+						i++;
+					}
+					else
+					{
+						flags.Add(key);
+					}
+				}
+				else if (Match(args[i], @"^-\w{2,}$"))
+				{
+					flags.AddRange(
+						args[i].ToCharArray().Select(c => c.ToString())
+						);
+				}
+				else
 				{
 					positionalArguments.Add(args[i]);
 				}
@@ -31,23 +69,43 @@ namespace Commander.NET
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
 
-				for (int i = 0; i < args.Length; i++)
+				if (GetType(member) == typeof(bool))
 				{
-					if (param.MatchesName(args[i]))
+					SetValue(
+						obj, 
+						member, 
+						param.Keys.Any(name => GetBool(name))
+						);
+				}
+				else
+				{
+					string value = param.Keys
+						.Where(key => keyValuePairs.ContainsKey(key))
+						.Select(key => keyValuePairs[key])
+						.FirstOrDefault();
+					if (value != null)
 					{
-						if (GetType(member) == typeof(bool))
-						{
-							SetValue(obj, member, true);
-						}
-						else if (i < args.Length - 1 && !args[i + 1].StartsWith("-"))
-						{
-							SetValue(obj, member, args[i + 1]);
-						}
+						SetValue(obj, member, value);
 					}
 				}
 			}
 
+			foreach (MemberInfo member in GetParameterMembers<T, PositionalParameterAttribute>())
+			{
+				PositionalParameterAttribute param = member.GetCustomAttribute<PositionalParameterAttribute>();
+
+				if (param.Index < positionalArguments.Count)
+				{
+					SetValue(obj, member, positionalArguments[param.Index]);
+				}
+			}
+
 			return obj;
+		}
+
+		static bool Match(string input, string regex)
+		{
+			return Regex.Match(input, regex).Success;
 		}
 
 		static IEnumerable<MemberInfo> GetParameterMembers<T, Q>() where Q : Attribute

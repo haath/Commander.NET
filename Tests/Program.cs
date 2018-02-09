@@ -20,13 +20,23 @@ namespace Tests
 		[Parameter("-s", "--stuff", Description = "some stuff")]
 		public string[] Stuff;
 
+		[Parameter("-f")]
+		public bool Flag;
+
+		[PositionalParameter(0)]
+		public string Positional0;
+
+		[PositionalParameter(1)]
+		public string Positional1;
+
 		public override string ToString()
 		{
-			string s = ID + " " + Name + " ";
+			string s = ID + " " + Name + " " + Flag + " ";
 			foreach (string st in Stuff)
 			{
 				s += "," + st;
 			}
+			s += "\n" + Positional0 + " " + Positional1;
 			return s;
 		}
 	}
@@ -36,7 +46,7 @@ namespace Tests
 
 		static void Main(string[] args)
 		{
-			string[] y = { "-i", "123", "--name", "george", "-s", "one,two" };
+			string[] y = { "-i", "123", "positional0", "--name", "george", "-s", "one,two", "-f", "positional1" };
 			Test t = CommanderParser.Parse<Test>(y);
 			Console.WriteLine(t);
 		}

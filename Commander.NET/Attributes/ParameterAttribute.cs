@@ -7,25 +7,19 @@ using System.Text.RegularExpressions;
 namespace Commander.NET.Attributes
 {
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-	public class ParameterAttribute : Attribute
-    {
+	public class ParameterAttribute : CommanderAttribute
+	{
 		/// <summary>
 		/// The names of this parameter.
 		/// </summary>
 		public string[] Names { get; private set; }
 
-		/// <summary>
-		/// If a Required option is missing when parsing, the parser will throw a ParameterException.
-		/// <para>By default, a parameter is considered required when the default value of the corresponding field is null.</para>
-		/// </summary>
-		public bool? Required = null;
-
-		/// <summary>
-		/// A description of this parameter. Will be displayed when generating the usage string.
-		/// </summary>
-		public string Description;
-
 		public bool Password = false;
+
+		internal IEnumerable<string> Keys
+		{
+			get { return Names.Select(name => name.TrimStart('-')); }
+		}
 
 		/// <summary>
 		/// The names of this parameter, in any UNIX-like syntax:
