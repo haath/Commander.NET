@@ -2,6 +2,9 @@
 
 C# command-line argument parsing and serialization via attributes. Inspired by [JCommander](http://jcommander.org/).
 
+If you would like to expand this library, please include examples in your PR or issue, of widely-used CLI tools that
+support your suggested practice or format.
+
 ## Usage
 
 First you need to create a non-abstract class, with a public parameterless constructor, 
@@ -139,24 +142,32 @@ Options:
     ...
 ```
 
-
 In general, any argument passed that is neither the name of the parameter, 
 nor the value of a non-boolean named parameter will be considered a positional parameter
 and assigned to the appropriate index.
 
-##### Reverse indexing
+### Key-Value separators
 
-You can also index a positional parameter in relation to the end of the list of positional parameters
-by specifying a negative index.
+By default, the parser will only consider key-value pairs that are separated by a space.
+You can change that by setting the Separators flags of the parser.
+The example below will parse both the `--key value` format and the `--key=value` format.
 
 ```csharp
-[PositionalParameter(-1, "operation")]
-public string LastParameter;
-
-[PositionalParameter(-2, "target")]
-public string SecondToLastParameter;
+CommanderParser<Options> parser = new CommanderParser<Options>();
+Options options = parser.Add(args)
+                        .Separators(Separators.Space | Separators.Equals)
+                        .Parse();
 ```
 
-**Note:** The negative index in this case represents **//TODO**
+Currently available separators:
+
+- Separators.Space
+- Separators.Equals
+- Separators.Colon
+- Separators.All
+
+### TODO
+
+- Reverse positional indexing
 
 

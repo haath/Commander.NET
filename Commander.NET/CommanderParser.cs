@@ -105,10 +105,11 @@ namespace Commander.NET
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="args"></param>
+		/// <param name="separators"></param>
 		/// <returns></returns>
-		public static T Parse<T>(params string[] args) where T : new()
+		public static T Parse<T>(string[] args, Separators separators = Separators.Space) where T : new()
 		{
-			return Parse<T>(new T(), new T(), args);
+			return Parse<T>(new T(), new T(), args, separators);
 		}
 
 		/// <summary>
@@ -117,13 +118,14 @@ namespace Commander.NET
 		/// <typeparam name="T"></typeparam>
 		/// <param name="obj"></param>
 		/// <param name="args"></param>
+		/// <param name="separators"></param>
 		/// <returns></returns>
-		public static T Parse<T>(T obj, params string[] args) where T : new()
+		public static T Parse<T>(T obj, string[] args, Separators separators = Separators.Space) where T : new()
 		{
-			return Parse<T>(new T(), obj, args);
+			return Parse<T>(new T(), obj, args, separators);
 		}
 
-		internal static T Parse<T>(T defaultObj, T obj, params string[] args)
+		internal static T Parse<T>(T defaultObj, T obj, string[] args, Separators separators = Separators.Space)
 		{
 			HashSet<string> booleanKeys = new HashSet<string>();
 			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
@@ -134,7 +136,6 @@ namespace Commander.NET
 						booleanKeys.Add(booleanKey);
 				}
 			}
-
 
 			List<string> positionalArguments = new List<string>();
 			List<string> flags = new List<string>();
@@ -150,10 +151,18 @@ namespace Commander.NET
 			 */
 			for (int i = 0; i < args.Length; i++)
 			{
-				if (Match(args[i], @"^-\w$") || Match(args[i], @"^--\w{2,}$"))
+				if ((Match(args[i], @"^-[a-zA-Z0-9_]=\w+$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}=\w+$")) && separators.HasFlag(Separators.Equals)
+					|| (Match(args[i], @"^-[a-zA-Z0-9_]:\w+$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}:\w+$")) && separators.HasFlag(Separators.Colon))
+				{
+					string key = args[i].TrimStart('-').Split(':')[0].Split('=')[0];
+					string value = args[i].Split(':').Last().Split('=').Last();
+
+					keyValuePairs.Add(key, value);
+				}
+				else if (Match(args[i], @"^-[a-zA-Z0-9_]$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}$"))
 				{
 					string key = args[i].TrimStart('-');
-
+					
 					if (!booleanKeys.Contains(key) && i < args.Length - 1 && !args[i + 1].StartsWith("-"))
 					{
 						keyValuePairs.Add(key, args[i + 1]);
@@ -164,7 +173,7 @@ namespace Commander.NET
 						flags.Add(key);
 					}
 				}
-				else if (Match(args[i], @"^-\w{2,}$"))
+				else if (Match(args[i], @"^-[a-zA-Z0-9_]{2,}$"))
 				{
 					flags.AddRange(
 						args[i].ToCharArray().Select(c => c.ToString())
@@ -358,5 +367,29 @@ namespace Commander.NET
 			}
 			return null;
 		}
+	}
+
+	[Flags]
+	public enum Separators
+	{
+		/// <summary>
+		/// Any separators will be considered
+		/// </summary>
+		All		=	0xFF,
+
+		/// <summary>
+		/// --key value
+		/// </summary>
+		Space	=	1 << 0,
+
+		/// <summary>
+		/// --key=value
+		/// </summary>
+		Equals	=	1 << 1,
+
+		/// <summary>
+		/// --key:value
+		/// </summary>
+		Colon	=	1 << 2
 	}
 }

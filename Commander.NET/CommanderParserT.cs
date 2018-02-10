@@ -14,6 +14,7 @@ namespace Commander.NET
     {
 		T defaultObject;
 		List<string> args;
+		Separators separators = Commander.NET.Separators.Space;
 
 		public CommanderParser()
 		{
@@ -32,12 +33,19 @@ namespace Commander.NET
 			return this;
 		}
 
+		public CommanderParser<T> Separators(Separators separators)
+		{
+			this.separators = separators;
+			return this;
+		}
+
 		/// <summary>
 		/// Parse the given arguments - along with any other arguments added to this object - and serialize them into a new instance of a T object.
 		/// </summary>
 		/// <param name="args"></param>
+		/// <param name="separators"></param>
 		/// <returns></returns>
-		public T Parse(params string[] args)
+		public T Parse(string[] args)
 		{
 			Add(args);
 			return Parse();
@@ -49,7 +57,7 @@ namespace Commander.NET
 		/// <returns></returns>
 		public T Parse()
 		{
-			return CommanderParser.Parse<T>(defaultObject, new T(), args.ToArray());
+			return CommanderParser.Parse<T>(defaultObject, new T(), args.ToArray(), separators);
 		}
 
 		/// <summary>
@@ -57,8 +65,9 @@ namespace Commander.NET
 		/// </summary>
 		/// <param name="obj"></param>
 		/// <param name="args"></param>
+		/// <param name="separators"></param>
 		/// <returns></returns>
-		public T Parse(T obj, params string[] args)
+		public T Parse(T obj, string[] args)
 		{
 			Add(args);
 			return Parse(obj);
@@ -68,10 +77,11 @@ namespace Commander.NET
 		/// Parse the arguments added to this object and serialize them into an existing instance of a T object.
 		/// </summary>
 		/// <param name="obj"></param>
+		/// <param name="separators"></param>
 		/// <returns></returns>
 		public T Parse(T obj)
 		{
-			return CommanderParser.Parse<T>(defaultObject, obj, args.ToArray());
+			return CommanderParser.Parse<T>(defaultObject, obj, args.ToArray(), separators);
 		}
 
 		/// <summary>

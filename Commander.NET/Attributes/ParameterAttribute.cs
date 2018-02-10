@@ -30,36 +30,16 @@ namespace Commander.NET.Attributes
 		{
 			Names = names.Select(n =>
 			{
-				if (Match(n, @"^-\w$") || Match(n, @"^--\w{2,}$"))
+				if (Match(n, @"^-[a-zA-Z0-9_]$") || Match(n, @"^--[a-zA-Z0-9_]{2,}$"))
 					return n;
-				else if (Match(n, @"^\w$"))
+				else if (Match(n, @"^[a-zA-Z0-9_]$"))
 					return "-" + n;
-				else if (Match(n, @"^\w{2,}$"))
+				else if (Match(n, @"^[a-zA-Z0-9_]{2,}$"))
 					return "--" + n;
 				else
 					throw new FormatException("Invalid parameter name: " + n);
 			}).OrderBy(n => n)
 			.ToArray();
-		}
-
-		internal bool MatchesName(string name)
-		{
-			if (Names.Contains(name))
-				return true;
-
-			if (Match(name, @"^-\w{2,}$"))
-			{
-				// Multiple flags
-				foreach (string singleCharacterName in Names.Where(n => n.Length == 2))
-				{
-					string flag = singleCharacterName.Substring(1);
-
-					if (name.Contains(flag))
-						return true;
-				}
-			}
-
-			return false;
 		}
 
 		static bool Match(string input, string regex)

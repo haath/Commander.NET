@@ -59,14 +59,14 @@ namespace Tests
 
 		static void Main(string[] argc)
 		{
-			string[] args = { "-i", "123", "--name", "john"};
+			string[] args = { "-i", "123", "--name", "john", "--test:asdf", "--test=asdf" };
 
 
 			Console.WriteLine(CommanderParser.Usage<Options>());
 
 			try
 			{
-				Options opts = CommanderParser.Parse<Options>(args);
+				Options opts = CommanderParser.Parse<Options>(args, Separators.All);
 			}
 			catch (ParameterMissingException ex)
 			{
