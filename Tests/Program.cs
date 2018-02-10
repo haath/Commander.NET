@@ -18,11 +18,11 @@ namespace Tests
 		[Parameter("-n", "--name", Description = "The name.")]
 		public string Name;
 
-		[PositionalParameter(0, "target", Description = "The host to connect to.")]
-		public string Host = "127.0.0.1";
+		[PositionalParameter(0, "operation", Description = "The operation to perform.")]
+		public string Operation;
 
-		[PositionalParameter(1, "positional1")]
-		public string Positional1 = "defaultValue";
+		[PositionalParameter(1, "target", Description = "The host to connect to.")]
+		public string Host = "127.0.0.1";
 
 		[Parameter("-s", "--stuff", Description = "some stuff", Required = Required.No)]
 		public string[] Stuff;
@@ -49,7 +49,7 @@ namespace Tests
 			{
 				s += "," + st;
 			}
-			s += "\n" + Host + " " + Positional1;
+			s += "\n" + Host + " " + Operation;
 			return s;
 		}
 	}
@@ -61,10 +61,9 @@ namespace Tests
 		{
 			string[] args = { "-i", "123", "--name", "john"};
 
-			CommanderParser<Options> parser = new CommanderParser<Options>();
-			Options options = parser.Add(args)
-									.Parse();
-			Console.WriteLine(parser.Usage());
+
+			Console.WriteLine(CommanderParser.Usage<Options>());
+
 			try
 			{
 				Options opts = CommanderParser.Parse<Options>(args);

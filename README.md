@@ -1,6 +1,6 @@
 # Commander.NET
 
-C# command-line argument parsing and serialization via attributes. Inspired by [JCommander](http://jcommander.org/)
+C# command-line argument parsing and serialization via attributes. Inspired by [JCommander](http://jcommander.org/).
 
 ## Usage
 
@@ -115,5 +115,48 @@ catch (ParameterFormatException ex)
 	Console.WriteLine(ex.Message);
 }
 ```
+
+### Positional parameters
+
+You can define positional parameters using the `PositionalParameter` attribute.
+
+```csharp
+[PositionalParameter(0, "operation", Description = "The operation to perform.")]
+public string Operation;
+
+[PositionalParameter(1, "target", Description = "The host to connect to.")]
+public string Host = "127.0.0.1";
+```
+
+When printing out the usage, positional parameters will be shown like the example below.
+However, they can be passed in any order in relation to the options.
+
+```
+Usage: Tests.exe [options] <operation> [target]
+    operation: The operation to perform.
+    target: The host to connect to.
+Options:
+    ...
+```
+
+
+In general, any argument passed that is neither the name of the parameter, 
+nor the value of a non-boolean named parameter will be considered a positional parameter
+and assigned to the appropriate index.
+
+##### Reverse indexing
+
+You can also index a positional parameter in relation to the end of the list of positional parameters
+by specifying a negative index.
+
+```csharp
+[PositionalParameter(-1, "operation")]
+public string LastParameter;
+
+[PositionalParameter(-2, "target")]
+public string SecondToLastParameter;
+```
+
+**Note:** The negative index in this case represents **//TODO**
 
 

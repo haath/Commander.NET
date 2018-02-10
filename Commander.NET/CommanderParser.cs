@@ -145,6 +145,9 @@ namespace Commander.NET
 				return flags.Contains(key) || keyValuePairs.ContainsKey(key);
 			};
 
+			/*
+			 * Parse arguments
+			 */
 			for (int i = 0; i < args.Length; i++)
 			{
 				if (Match(args[i], @"^-\w$") || Match(args[i], @"^--\w{2,}$"))
@@ -173,6 +176,9 @@ namespace Commander.NET
 				}
 			}
 
+			/*
+			 * Set named arguments
+			 */
 			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
@@ -203,6 +209,9 @@ namespace Commander.NET
 				}
 			}
 
+			/*
+			 * Set positional arguments
+			 */
 			foreach (MemberInfo member in GetParameterMembers<T, PositionalParameterAttribute>())
 			{
 				PositionalParameterAttribute param = member.GetCustomAttribute<PositionalParameterAttribute>();
@@ -215,6 +224,18 @@ namespace Commander.NET
 				{
 					// Required parameter missing
 					throw new ParameterMissingException(param);
+				}
+			}
+
+			foreach (MemberInfo member in GetParameterMembers<T, PositionalParameterListAttribute>())
+			{
+				if (GetType(member).IsArray)
+				{
+					SetValue(obj, member, positionalArguments.ToArray());
+				}
+				else
+				{
+					SetValue(obj, member, positionalArguments);
 				}
 			}
 
