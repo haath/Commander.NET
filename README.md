@@ -166,8 +166,12 @@ Currently available separators:
 - Separators.Colon
 - Separators.All
 
-### TODO
+### //TODO
 
 - Reverse positional indexing
-
+- Passing multiple comma-separated values
+- Specifying possible values. (f.e bacon|onions|tomatoes) Will be doable by default with regex, but enum support will be nice.
+- Specifying acceptable value regex filters
+- Specifying methods for input validation (these are not allowed in attributes, will likely have to be other methods within the class)
+- [Commands](http://jcommander.org/#_more_complex_syntaxes_commands)
 

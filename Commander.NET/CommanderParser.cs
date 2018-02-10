@@ -141,6 +141,8 @@ namespace Commander.NET
 			List<string> flags = new List<string>();
 			Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
 
+			Action<string, string> TryAddKeyValuePair = (key, value) => { if (!keyValuePairs.ContainsKey(key)) keyValuePairs.Add(key, value); };
+
 			Func<string, bool> GetBool = (key) =>
 			{
 				return flags.Contains(key) || keyValuePairs.ContainsKey(key);
@@ -157,7 +159,7 @@ namespace Commander.NET
 					string key = args[i].TrimStart('-').Split(':')[0].Split('=')[0];
 					string value = args[i].Split(':').Last().Split('=').Last();
 
-					keyValuePairs.Add(key, value);
+					TryAddKeyValuePair(key, value);
 				}
 				else if (Match(args[i], @"^-[a-zA-Z0-9_]$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}$"))
 				{
@@ -165,7 +167,7 @@ namespace Commander.NET
 					
 					if (!booleanKeys.Contains(key) && i < args.Length - 1 && !args[i + 1].StartsWith("-"))
 					{
-						keyValuePairs.Add(key, args[i + 1]);
+						TryAddKeyValuePair(key, args[i + 1]);
 						i++;
 					}
 					else

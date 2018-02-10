@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Commander.NET;
@@ -61,12 +62,12 @@ namespace Tests
 		{
 			string[] args = { "-i", "123", "--name", "john", "--test:asdf", "--test=asdf" };
 
-
+			Console.WriteLine(Regex.Match("shit", @"bacon|onion|tomato").Success);
 			Console.WriteLine(CommanderParser.Usage<Options>());
 
 			try
 			{
-				Options opts = CommanderParser.Parse<Options>(args, Separators.All);
+				Options opts = CommanderParser.Parse<Options>(args, Separators.Space);
 			}
 			catch (ParameterMissingException ex)
 			{
