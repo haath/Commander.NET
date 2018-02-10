@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Commander.NET.Exceptions
 {
-    public abstract class ParameterException : Exception
+	public abstract class ParameterException : Exception
 	{
 		CommanderAttribute attrib;
 

@@ -10,8 +10,8 @@ using System.Text.RegularExpressions;
 
 namespace Commander.NET
 {
-    public class CommanderParser<T> where T : new()
-    {
+	public class CommanderParser<T> where T : new()
+	{
 		T defaultObject;
 		List<string> args;
 		Separators separators = Commander.NET.Separators.Space;
@@ -96,5 +96,5 @@ namespace Commander.NET
 		{
 			return CommanderParser.Usage<T>(defaultObject, executableName, indentationSpaces);
 		}
-    }
+	}
 }

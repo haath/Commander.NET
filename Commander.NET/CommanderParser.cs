@@ -9,8 +9,8 @@ using System.Text.RegularExpressions;
 
 namespace Commander.NET
 {
-    public static class CommanderParser
-    {
+	public static class CommanderParser
+	{
 		/// <summary>
 		/// Generate the usage string based on the given type's attributes. 
 		/// <para>Optional positional parameters will be shown in square brackets.</para>

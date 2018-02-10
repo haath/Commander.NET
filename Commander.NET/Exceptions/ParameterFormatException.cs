@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Commander.NET.Exceptions
 {
-    public class ParameterFormatException : ParameterException
+	public class ParameterFormatException : ParameterException
 	{
 		public readonly string Value;
 		public readonly Type RequiredType;

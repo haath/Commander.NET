@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Commander.NET.Attributes
 {
-    public abstract class CommanderAttribute : Attribute
+	public abstract class CommanderAttribute : Attribute
 	{
 		/// <summary>
 		/// If a Required option is missing when parsing, the parser will throw a ParameterMissingException.

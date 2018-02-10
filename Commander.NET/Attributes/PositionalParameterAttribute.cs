@@ -15,5 +15,5 @@ namespace Commander.NET.Attributes
 			Index = index;
 			Name = name;
 		}
-    }
+	}
 }

@@ -6,7 +6,7 @@ using Commander.NET.Attributes;
 
 namespace Commander.NET.Exceptions
 {
-    public class ParameterMissingException : ParameterException
+	public class ParameterMissingException : ParameterException
 	{
 		internal ParameterMissingException(CommanderAttribute attrib) : base(attrib)
 		{
