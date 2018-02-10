@@ -1,18 +1,17 @@
-﻿using System;
+﻿using Commander.NET.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Commander.NET.Exceptions
 {
-    public class ParameterFormatException : Exception
-    {
-		public readonly string ParameterName;
+    public class ParameterFormatException : ParameterException
+	{
 		public readonly string Value;
 		public readonly Type RequiredType;
 
-		internal ParameterFormatException(string parameterName, string value, Type requiredType)
+		internal ParameterFormatException(CommanderAttribute attrib, string value, Type requiredType) : base(attrib)
 		{
-			ParameterName = parameterName;
 			Value = value;
 			RequiredType = requiredType;
 		}

@@ -193,12 +193,12 @@ namespace Commander.NET
 						.FirstOrDefault();
 					if (value != null)
 					{
-						SetValue(obj, member, param.Names[0], value);
+						SetValue(obj, member, param, value);
 					}
 					else if (ParamRequired<T>(defaultObj, param, member))
 					{
 						// Required parameter missing
-						throw new ParameterMissingException(param.Names[0]);
+						throw new ParameterMissingException(param);
 					}
 				}
 			}
@@ -209,12 +209,12 @@ namespace Commander.NET
 
 				if (param.Index < positionalArguments.Count)
 				{
-					SetValue(obj, member, param.Name, positionalArguments[param.Index]);
+					SetValue(obj, member, param, positionalArguments[param.Index]);
 				}
 				else if (ParamRequired<T>(defaultObj, param, member))
 				{
 					// Required parameter missing
-					throw new ParameterMissingException(param.Name);
+					throw new ParameterMissingException(param);
 				}
 			}
 
@@ -246,7 +246,7 @@ namespace Commander.NET
 			}
 		}
 
-		static void SetValue<T>(T obj, MemberInfo member, string parameterName, string value)
+		static void SetValue<T>(T obj, MemberInfo member, CommanderAttribute param, string value)
 		{
 			try
 			{
@@ -256,7 +256,7 @@ namespace Commander.NET
 			}
 			catch (FormatException)
 			{
-				throw new ParameterFormatException(parameterName, value, member.GetType());
+				throw new ParameterFormatException(param, value, member.GetType());
 			}
 		}
 

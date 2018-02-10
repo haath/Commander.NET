@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Commander.NET.Attributes;
+
 namespace Commander.NET.Exceptions
 {
-    public class ParameterMissingException : Exception
-    {
-		string parameterName;
-
-		internal ParameterMissingException(string parameterName)
+    public class ParameterMissingException : ParameterException
+	{
+		internal ParameterMissingException(CommanderAttribute attrib) : base(attrib)
 		{
-			this.parameterName = parameterName;
+
 		}
 
 		public override string Message
@@ -18,7 +18,7 @@ namespace Commander.NET.Exceptions
 			get
 			{
 				StringBuilder msg = new StringBuilder("Parameter missing: ");
-				msg.Append(parameterName);
+				msg.Append(ParameterName);
 				return msg.ToString();
 			}
 		}

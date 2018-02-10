@@ -49,7 +49,7 @@ namespace Commander.NET
 		/// <returns></returns>
 		public T Parse()
 		{
-			return CommanderParser.Parse<T>(defaultObject, args.ToArray());
+			return CommanderParser.Parse<T>(defaultObject, new T(), args.ToArray());
 		}
 
 		/// <summary>
