@@ -18,7 +18,7 @@ namespace Tests
 		public string Name;
 
 		[PositionalParameter(1, "positional1")]
-		public string Positional1;
+		public string Positional1 = "defaultValue";
 
 		[Parameter("-s", "--stuff", Description = "some stuff")]
 		public string[] Stuff;
@@ -50,7 +50,7 @@ namespace Tests
 			Test t = CommanderParser.Parse<Test>(y);
 			Console.WriteLine(t);
 			Console.WriteLine();
-			Console.WriteLine(CommanderParser.Usage<Test>("penis.exe"));
+			Console.WriteLine(CommanderParser.Usage<Test>());
 		}
 	}
 }

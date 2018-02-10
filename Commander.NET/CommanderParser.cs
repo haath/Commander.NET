@@ -1,53 +1,80 @@
-﻿using System;
+﻿using Commander.NET.Attributes;
+using Commander.NET.Exceptions;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Text;
-
-using Commander.NET.Attributes;
-using Commander.NET.Exceptions;
 using System.Text.RegularExpressions;
 
 namespace Commander.NET
 {
     public static class CommanderParser
     {
-		public static string Usage<T>(string executableName = "<exe>", string indendation = "    ") where T : new()
+		/// <summary>
+		/// Generate the usage string based on the given type's attributes. 
+		/// <para>Optional positional parameters will be shown in square brackets.</para>
+		/// <para>Required options will have an asterix prefix.</para>
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="executableName">The name of the executable that should be shown on the sample usage line. 
+		/// By default the name of the actual executable will be used from System.AppDomain.CurrentDomain.FriendlyName.</param>
+		/// <param name="indentationSpaces"></param>
+		/// <returns></returns>
+		public static string Usage<T>(string executableName = null, int indentationSpaces = 4) where T : new()
 		{
+			return Usage<T>(new T(), executableName, indentationSpaces);
+		}
+
+		internal static string Usage<T>(T defaultObj, string executableName = null, int indentationSpaces = 4)
+		{
+			executableName = executableName ?? AppDomain.CurrentDomain.FriendlyName;
+			string indentation = string.Join("", new int[indentationSpaces].Select(s => " "));
+
 			StringBuilder usage = new StringBuilder();
 			usage.AppendFormat("Usage: {0} [options] ", executableName);
 
-			IOrderedEnumerable<PositionalParameterAttribute> positionalParams = GetParameterMembers<T, PositionalParameterAttribute>()
-																		.Select(member => member.GetCustomAttribute<PositionalParameterAttribute>())
-																		.OrderBy(param => param.Index);
+			IOrderedEnumerable<MemberInfo> positionalParams = GetParameterMembers<T, PositionalParameterAttribute>()
+																	.OrderBy(member => member.GetCustomAttribute<PositionalParameterAttribute>().Index);
+			IOrderedEnumerable<MemberInfo> optionParams = GetParameterMembers<T, ParameterAttribute>()
+																	.OrderBy(member => member.GetCustomAttribute<ParameterAttribute>().Names[0]);
 
-
-			foreach (PositionalParameterAttribute param in positionalParams)
+			foreach (MemberInfo member in positionalParams)
 			{
 				// Print example line
-				usage.AppendFormat("<{0}> ", param.Name);
+				PositionalParameterAttribute param = member.GetCustomAttribute<PositionalParameterAttribute>();
+
+				if (ParamRequired<T>(defaultObj, param, member))
+				{
+					usage.AppendFormat("<{0}> ", param.Name);
+				}
+				else
+				{
+					usage.AppendFormat("[{0}] ", param.Name);
+				}
 			}
 
 			usage.AppendLine();
-			
-			foreach (PositionalParameterAttribute param in positionalParams)
+
+			foreach (MemberInfo member in positionalParams)
 			{
+				PositionalParameterAttribute param = member.GetCustomAttribute<PositionalParameterAttribute>();
 				// Print positional argument descriptions
 				if (param.Description != null)
 				{
-					usage.AppendFormat("{0}{1}: {2}\n", indendation, param.Name, param.Description);
+					usage.AppendFormat("{0}{1}: {2}\n", indentation, param.Name, param.Description);
 				}
 			}
 
 			usage.AppendLine("Options:");
 
-			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
+			foreach (MemberInfo member in optionParams)
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
-				object defaultValue = GetDefaultValue<T>(member);
-				bool required = ParamRequired<T>(param, member);
+				object defaultValue = GetDefaultValue<T>(defaultObj, member);
+				bool required = ParamRequired<T>(defaultObj, param, member);
 
-				usage.Append(indendation).Append(required ? "* " : "  ");
+				usage.Append(indentation).Append(required ? "* " : "  ");
 
 				for (int i = 0; i < param.Names.Length; i++)
 				{
@@ -61,19 +88,42 @@ namespace Commander.NET
 
 				if (param.Description != null)
 				{
-					usage.AppendFormat("{0}{1}{2}\n", indendation, indendation, param.Description);
+					usage.AppendFormat("{0}{1}{2}\n", indentation, indentation, param.Description);
 				}
 
 				if (!required && defaultValue != null)
 				{
-					usage.AppendFormat("{0}{1}Default: {2}\n", indendation, indendation, defaultValue);
+					usage.AppendFormat("{0}{1}Default: {2}\n", indentation, indentation, defaultValue);
 				}
 			}
 
 			return usage.ToString();
 		}
 
-		public static T Parse<T>(string[] args) where T : new()
+		/// <summary>
+		/// Parse the given arguments and serialize them into a new instance of a T object.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		public static T Parse<T>(params string[] args) where T : new()
+		{
+			return Parse<T>(new T(), new T(), args);
+		}
+
+		/// <summary>
+		/// Parse the given arguments and serialize them into an existing instance of a T object.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="obj"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		public static T Parse<T>(T obj, params string[] args) where T : new()
+		{
+			return Parse<T>(new T(), obj, args);
+		}
+
+		internal static T Parse<T>(T defaultObj, T obj, params string[] args)
 		{
 			HashSet<string> booleanKeys = new HashSet<string>();
 			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
@@ -123,8 +173,6 @@ namespace Commander.NET
 				}
 			}
 
-			T obj = new T();
-
 			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
@@ -132,8 +180,8 @@ namespace Commander.NET
 				if (GetType(member) == typeof(bool))
 				{
 					SetValue(
-						obj, 
-						member, 
+						obj,
+						member,
 						param.Keys.Any(name => GetBool(name))
 						);
 				}
@@ -147,7 +195,7 @@ namespace Commander.NET
 					{
 						SetValue(obj, member, param.Names[0], value);
 					}
-					else if (ParamRequired<T>(param, member))
+					else if (ParamRequired<T>(defaultObj, param, member))
 					{
 						// Required parameter missing
 						throw new ParameterMissingException(param.Names[0]);
@@ -163,7 +211,7 @@ namespace Commander.NET
 				{
 					SetValue(obj, member, param.Name, positionalArguments[param.Index]);
 				}
-				else if (ParamRequired<T>(param, member))
+				else if (ParamRequired<T>(defaultObj, param, member))
 				{
 					// Required parameter missing
 					throw new ParameterMissingException(param.Name);
@@ -173,10 +221,10 @@ namespace Commander.NET
 			return obj;
 		}
 
-		static bool ParamRequired<T>(CommanderAttribute param, MemberInfo member) where T : new()
+		static bool ParamRequired<T>(T defaultObj, CommanderAttribute param, MemberInfo member)
 		{
-			return param.Required == Required.Yes 
-				|| (param.Required == Required.Default && GetDefaultValue<T>(member) == null);
+			return param.Required == Required.Yes
+				|| (param.Required == Required.Default && GetDefaultValue<T>(defaultObj, member) == null);
 		}
 
 		static bool Match(string input, string regex)
@@ -264,15 +312,15 @@ namespace Commander.NET
 			return convertedValue;
 		}
 
-		static object GetDefaultValue<T>(MemberInfo member) where T : new()
+		static object GetDefaultValue<T>(T obj, MemberInfo member)
 		{
 			if (member is PropertyInfo)
 			{
-				return (member as PropertyInfo).GetValue(new T());
+				return (member as PropertyInfo).GetValue(obj);
 			}
 			else if (member is FieldInfo)
 			{
-				return (member as FieldInfo).GetValue(new T());
+				return (member as FieldInfo).GetValue(obj);
 			}
 			return null;
 		}
@@ -289,5 +337,5 @@ namespace Commander.NET
 			}
 			return null;
 		}
-    }
+	}
 }
