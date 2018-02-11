@@ -34,7 +34,7 @@ namespace Tests
 
 		static void Main(string[] argc)
 		{
-			string[] args = { "-i", "123", "--name", "james" };
+			string[] args = { "-i", "123", "--name", "john" };
 
 			Console.WriteLine(Regex.Match("shit", @"bacon|onion|tomato").Success);
 			Console.WriteLine(CommanderParser.Usage<Options>());
