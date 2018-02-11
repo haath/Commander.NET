@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -48,6 +49,23 @@ namespace Commander.NET
 			Array.Resize<T>(ref x, x.Length + y.Length);
 			Array.Copy(y, 0, x, oldLen, y.Length);
 			return x;
+		}
+
+		internal static string[] NormalizeParameterNames(this string[] names)
+		{
+			return names.Select(n =>
+			{
+				if (n.Matches(@"^-[a-zA-Z0-9_]$") || n.Matches(@"^--[a-zA-Z0-9_]{2,}$"))
+					return n;
+				else if (n.Matches(@"^[a-zA-Z0-9_]$"))
+					return "-" + n;
+				else if (n.Matches(@"^[a-zA-Z0-9_]{2,}$"))
+					return "--" + n;
+				else
+					throw new FormatException("Invalid parameter name: " + n);
+			})
+			.OrderBy(n => n)
+			.ToArray();
 		}
 	}
 }

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-
-using Commander.NET;
 
 namespace Commander.NET.Attributes
 {
-	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-	public class ParameterAttribute : CommanderAttribute 
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate)]
+	public class ParameterValidatorAttribute : Attribute
 	{
 		/// <summary>
 		/// The names of this parameter.
@@ -22,11 +19,11 @@ namespace Commander.NET.Attributes
 		}
 
 		/// <summary>
-		/// The names of this parameter, in any UNIX-like syntax:
+		/// The parameter names that will be validated through this method, in any UNIX-like syntax:
 		/// -e, e, --example, example
 		/// </summary>
 		/// <param name="names"></param>
-		public ParameterAttribute(params string[] names)
+		public ParameterValidatorAttribute(params string[] names)
 		{
 			Names = names.NormalizeParameterNames();
 		}

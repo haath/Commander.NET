@@ -33,6 +33,12 @@ namespace Commander.NET
 			return this;
 		}
 
+		/// <summary>
+		/// Set which key-value separators are considered valid.
+		/// <para>By default, only the "--key value" format is considered valid.</para>
+		/// </summary>
+		/// <param name="separators"></param>
+		/// <returns></returns>
 		public CommanderParser<T> Separators(Separators separators)
 		{
 			this.separators = separators;
@@ -89,7 +95,6 @@ namespace Commander.NET
 			RawArguments rawArgs = new RawArguments()
 									.AddBooleanKeys<T>()
 									.Parse(args, separators);
-			
 
 			/*
 			 * Set named arguments
@@ -131,7 +136,7 @@ namespace Commander.NET
 
 				if (param.Index < rawArgs.PositionalArguments)
 				{
-					SetValue(obj, member, param, rawArgs[param.Index]);
+					SetValue(obj, member, param, rawArgs[(int)param.Index]);
 				}
 				else if (ParamRequired<T>(defaultObject, param, member))
 				{
