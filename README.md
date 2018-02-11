@@ -146,6 +146,13 @@ In general, any argument passed that is neither the name of the parameter,
 nor the value of a non-boolean named parameter will be considered a positional parameter
 and assigned to the appropriate index.
 
+You may also get all the positional parameters that were passed, using the `PositionalParameterList' attribute.
+
+```csharp
+[PositionalParameterList]
+public string[] Parameters;
+```
+
 ### Key-Value separators
 
 By default, the parser will only consider key-value pairs that are separated by a space.
@@ -166,12 +173,35 @@ Currently available separators:
 - Separators.Colon
 - Separators.All
 
+### Regular Expressions
+
+You can validate the values of a parameter through a regular expression, by setting the `Regex` property.
+
+```csharp
+[Parameter("-n", "--name", Regex = "^john|mary$")]
+public string Name;
+```
+
+```csharp
+string[] args = { "-n", "james" };
+
+try
+{
+	Options opts = CommanderParser.Parse<Options>(args);
+	Console.WriteLine(opts.ToString());
+}
+catch (ParameterMatchException ex)
+{
+	// Parameter -n: value "james" did not match the regular expression "^john|mary$"
+	Console.WriteLine(ex.Message);
+}
+```
+
 ### //TODO
 
 - Reverse positional indexing
 - Passing multiple comma-separated values
 - Specifying possible values. (f.e bacon|onions|tomatoes) Will be doable by default with regex, but enum support will be nice.
-- Specifying acceptable value regex filters
 - Specifying methods for input validation (these are not allowed in attributes, will likely have to be other methods within the class)
 - [Commands](http://jcommander.org/#_more_complex_syntaxes_commands)
 

@@ -16,6 +16,12 @@ namespace Commander.NET.Attributes
 		/// A description of this parameter. Will be displayed when generating the usage string.
 		/// </summary>
 		public string Description;
+
+		/// <summary>
+		/// The regular expression that the values of this parameter need to match.
+		/// If the passed value does not match, the parser will raise a ParameterMatchException.
+		/// </summary>
+		public string Regex;
 	}
 
 	public enum Required

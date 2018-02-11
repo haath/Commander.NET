@@ -246,7 +246,7 @@ namespace Commander.NET
 				}
 				else
 				{
-					SetValue(obj, member, positionalArguments);
+					SetValue(obj, member, new List<string>(positionalArguments));
 				}
 			}
 
@@ -280,16 +280,36 @@ namespace Commander.NET
 
 		static void SetValue<T>(T obj, MemberInfo member, CommanderAttribute param, string value)
 		{
+			object convertedValue;
 			try
 			{
-				object convertedValue = ValueParse(GetType(member), value);
-
-				SetValue(obj, member, convertedValue);
+				convertedValue = ValueParse(GetType(member), value);
 			}
 			catch (FormatException)
 			{
+				// The value had to be parsed to a numerical type and failed
 				throw new ParameterFormatException(param, value, member.GetType());
 			}
+
+			if (param.Regex != null)
+			{
+				// We need to validate this value with a regex
+				if (!convertedValue.GetType().IsArray && !Match(value, param.Regex))
+				{
+					// If it's not an array, simple check the string value against the regex
+					throw new ParameterMatchException(param, value);
+				}
+				else if (convertedValue.GetType().IsArray)
+				{
+					// If it's an array, check every single value against the regex
+					if (value.Split(',').FirstOrDefault(val => !Match(val, param.Regex)) != null)
+					{
+						throw new ParameterMatchException(param, value);
+					}
+				}
+			}
+
+			SetValue(obj, member, convertedValue);
 		}
 
 		static void SetValue<T>(T obj, MemberInfo member, object value)

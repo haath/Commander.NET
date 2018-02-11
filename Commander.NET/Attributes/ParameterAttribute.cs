@@ -44,7 +44,7 @@ namespace Commander.NET.Attributes
 
 		static bool Match(string input, string regex)
 		{
-			return Regex.Match(input, regex).Success;
+			return System.Text.RegularExpressions.Regex.Match(input, regex).Success;
 		}
 	}
 }

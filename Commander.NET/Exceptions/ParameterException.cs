@@ -7,7 +7,7 @@ namespace Commander.NET.Exceptions
 {
 	public abstract class ParameterException : Exception
 	{
-		CommanderAttribute attrib;
+		protected CommanderAttribute attrib;
 
 		public string ParameterName
 		{

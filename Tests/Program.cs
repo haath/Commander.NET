@@ -16,41 +16,15 @@ namespace Tests
 		[Parameter("-i", Description = "The ID")]
 		public int ID = 42;
 		
-		[Parameter("-n", "--name", Description = "The name.")]
+		[Parameter("-n", "--name", Description = "The name.", Regex = "^john|mary$")]
 		public string Name;
-
-		[PositionalParameter(0, "operation", Description = "The operation to perform.")]
-		public string Operation;
-
-		[PositionalParameter(1, "target", Description = "The host to connect to.")]
-		public string Host = "127.0.0.1";
-
-		[Parameter("-s", "--stuff", Description = "some stuff", Required = Required.No)]
-		public string[] Stuff;
 
 		[Parameter("-h", "--help", Description = "Print this message and exit.")]
 		public bool Help;
 
-		[Parameter("-r", Required = Required.Yes)]
-		public int RequiredParameter;
-
-		[Parameter("--lorem", Required = Required.No)]
-		public string NotRequiredParameter;
-
-		[Parameter("--ipsum")]	// Required.Default
-		public string ThisOneIsRequired;
-
-		[Parameter("--dolor")]  // Required.Default
-		public string ThisOneIsNotRequired = "Because it has a default value";
-
 		public override string ToString()
 		{
 			string s = ID + " " + Name + " " + Help + " ";
-			foreach (string st in Stuff)
-			{
-				s += "," + st;
-			}
-			s += "\n" + Host + " " + Operation;
 			return s;
 		}
 	}
@@ -60,7 +34,7 @@ namespace Tests
 
 		static void Main(string[] argc)
 		{
-			string[] args = { "-i", "123", "--name", "john", "--test:asdf", "--test=asdf" };
+			string[] args = { "-i", "123", "--name", "james" };
 
 			Console.WriteLine(Regex.Match("shit", @"bacon|onion|tomato").Success);
 			Console.WriteLine(CommanderParser.Usage<Options>());
@@ -68,6 +42,7 @@ namespace Tests
 			try
 			{
 				Options opts = CommanderParser.Parse<Options>(args, Separators.Space);
+				Console.WriteLine(opts.ToString());
 			}
 			catch (ParameterMissingException ex)
 			{
@@ -82,6 +57,10 @@ namespace Tests
 				 *	ex.Value
 				 *	ex.RequiredType
 				 */
+				Console.WriteLine(ex.Message);
+			}
+			catch (ParameterMatchException ex)
+			{
 				Console.WriteLine(ex.Message);
 			}
 		}
