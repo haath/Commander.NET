@@ -173,9 +173,23 @@ Currently available separators:
 - Separators.Colon
 - Separators.All
 
-### Regular Expressions
+### Value validation
 
-You can validate the values of a parameter through a regular expression, by setting the `Regex` property.
+```csharp
+[Parameter("-a", "--age")]
+public int Age;
+
+[ParameterValidator("-a")]
+public bool PositiveInteger(string value)
+{
+	int intVal;
+	return int.TryParse(value, out intVal) && intVal > 0;
+}
+```
+
+### Regular Expression Validation
+
+You can also validate the values of a parameter through a regular expression, by setting the `Regex` property.
 
 ```csharp
 [Parameter("-n", "--name", Regex = "^john|mary$")]
