@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 
+using Commander.NET.Models;
 using Commander.NET.Attributes;
 using Commander.NET.Exceptions;
 using System.Text.RegularExpressions;
@@ -13,12 +14,11 @@ namespace Commander.NET
 	public class CommanderParser<T> where T : new()
 	{
 		T defaultObject;
-		List<string> args;
+		string[] args;
 		Separators separators = Commander.NET.Separators.Space;
 
 		public CommanderParser()
 		{
-			args = new List<string>();
 			defaultObject = new T();
 		}
 
@@ -29,7 +29,7 @@ namespace Commander.NET
 
 		public CommanderParser<T> Add(params string[] args)
 		{
-			this.args.AddRange(args);
+			this.args = this.args.Concat(args);
 			return this;
 		}
 
@@ -83,88 +83,33 @@ namespace Commander.NET
 		/// <returns></returns>
 		public T Parse(T obj)
 		{
-			string[] args = this.args.ToArray();
-			HashSet<string> booleanKeys = new HashSet<string>();
-			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
-			{
-				if (GetType(member) == typeof(bool))
-				{
-					foreach (string booleanKey in member.GetCustomAttribute<ParameterAttribute>().Keys)
-						booleanKeys.Add(booleanKey);
-				}
-			}
-
-			List<string> positionalArguments = new List<string>();
-			List<string> flags = new List<string>();
-			Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
-
-			Action<string, string> TryAddKeyValuePair = (key, value) => { if (!keyValuePairs.ContainsKey(key)) keyValuePairs.Add(key, value); };
-
-			Func<string, bool> GetBool = (key) =>
-			{
-				return flags.Contains(key) || keyValuePairs.ContainsKey(key);
-			};
-
 			/*
 			 * Parse arguments
 			 */
-			for (int i = 0; i < args.Length; i++)
-			{
-				if ((Match(args[i], @"^-[a-zA-Z0-9_]=\w+$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}=\w+$")) && separators.HasFlag(NET.Separators.Equals)
-					|| (Match(args[i], @"^-[a-zA-Z0-9_]:\w+$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}:\w+$")) && separators.HasFlag(NET.Separators.Colon))
-				{
-					string key = args[i].TrimStart('-').Split(':')[0].Split('=')[0];
-					string value = args[i].Split(':').Last().Split('=').Last();
-
-					TryAddKeyValuePair(key, value);
-				}
-				else if (Match(args[i], @"^-[a-zA-Z0-9_]$") || Match(args[i], @"^--[a-zA-Z0-9_]{2,}$"))
-				{
-					string key = args[i].TrimStart('-');
-
-					if (!booleanKeys.Contains(key) && i < args.Length - 1 && !args[i + 1].StartsWith("-"))
-					{
-						TryAddKeyValuePair(key, args[i + 1]);
-						i++;
-					}
-					else
-					{
-						flags.Add(key);
-					}
-				}
-				else if (Match(args[i], @"^-[a-zA-Z0-9_]{2,}$"))
-				{
-					flags.AddRange(
-						args[i].ToCharArray().Select(c => c.ToString())
-						);
-				}
-				else
-				{
-					positionalArguments.Add(args[i]);
-				}
-			}
+			RawArguments rawArgs = new RawArguments()
+									.AddBooleanKeys<T>()
+									.Parse(args, separators);
+			
 
 			/*
 			 * Set named arguments
 			 */
-			foreach (MemberInfo member in GetParameterMembers<T, ParameterAttribute>())
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>())
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
 
-				if (GetType(member) == typeof(bool))
+				if (member.Type() == typeof(bool))
 				{
 					SetValue(
 						obj,
 						member,
-						param.Keys.Any(name => GetBool(name))
+						param.Keys.Any(name => rawArgs.GetBoolean(name))
 						);
 				}
 				else
 				{
-					string value = param.Keys
-						.Where(key => keyValuePairs.ContainsKey(key))
-						.Select(key => keyValuePairs[key])
-						.FirstOrDefault();
+					string value = rawArgs.GetValue(param.Keys);
+
 					if (value != null)
 					{
 						SetValue(obj, member, param, value);
@@ -180,13 +125,13 @@ namespace Commander.NET
 			/*
 			 * Set positional arguments
 			 */
-			foreach (MemberInfo member in GetParameterMembers<T, PositionalParameterAttribute>())
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterAttribute>())
 			{
 				PositionalParameterAttribute param = member.GetCustomAttribute<PositionalParameterAttribute>();
 
-				if (param.Index < positionalArguments.Count)
+				if (param.Index < rawArgs.PositionalArguments)
 				{
-					SetValue(obj, member, param, positionalArguments[param.Index]);
+					SetValue(obj, member, param, rawArgs[param.Index]);
 				}
 				else if (ParamRequired<T>(defaultObject, param, member))
 				{
@@ -195,15 +140,15 @@ namespace Commander.NET
 				}
 			}
 
-			foreach (MemberInfo member in GetParameterMembers<T, PositionalParameterListAttribute>())
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterListAttribute>())
 			{
-				if (GetType(member).IsArray)
+				if (member.Type().IsArray)
 				{
-					SetValue(obj, member, positionalArguments.ToArray());
+					SetValue(obj, member, rawArgs.GetPositionalArguments().ToArray());
 				}
 				else
 				{
-					SetValue(obj, member, new List<string>(positionalArguments));
+					SetValue(obj, member, rawArgs.GetPositionalArguments());
 				}
 			}
 
@@ -226,9 +171,9 @@ namespace Commander.NET
 			StringBuilder usage = new StringBuilder();
 			usage.AppendFormat("Usage: {0} [options] ", executableName);
 
-			IOrderedEnumerable<MemberInfo> positionalParams = GetParameterMembers<T, PositionalParameterAttribute>()
+			IOrderedEnumerable<MemberInfo> positionalParams = Utils.GetParameterMembers<T, PositionalParameterAttribute>()
 																	.OrderBy(member => member.GetCustomAttribute<PositionalParameterAttribute>().Index);
-			IOrderedEnumerable<MemberInfo> optionParams = GetParameterMembers<T, ParameterAttribute>()
+			IOrderedEnumerable<MemberInfo> optionParams = Utils.GetParameterMembers<T, ParameterAttribute>()
 																	.OrderBy(member => member.GetCustomAttribute<ParameterAttribute>().Names[0]);
 
 			foreach (MemberInfo member in positionalParams)
@@ -307,31 +252,12 @@ namespace Commander.NET
 				|| (param.Required == Required.Default && GetDefaultValue<T>(defaultObj, member) == null);
 		}
 
-		static bool Match(string input, string regex)
-		{
-			return Regex.Match(input, regex).Success;
-		}
-
-		static IEnumerable<MemberInfo> GetParameterMembers<T, Q>() where Q : Attribute
-		{
-			foreach (MemberInfo member in typeof(T).GetProperties())
-			{
-				if (member.GetCustomAttribute<Q>() != null)
-					yield return member;
-			}
-			foreach (MemberInfo member in typeof(T).GetFields())
-			{
-				if (member.GetCustomAttribute<Q>() != null)
-					yield return member;
-			}
-		}
-
 		static void SetValue<T>(T obj, MemberInfo member, CommanderAttribute param, string value)
 		{
 			object convertedValue;
 			try
 			{
-				convertedValue = ValueParse(GetType(member), value);
+				convertedValue = ValueParse(member.Type(), value);
 			}
 			catch (FormatException)
 			{
@@ -342,7 +268,7 @@ namespace Commander.NET
 			if (param.Regex != null)
 			{
 				// We need to validate this value with a regex
-				if (!convertedValue.GetType().IsArray && !Match(value, param.Regex))
+				if (!convertedValue.GetType().IsArray && !value.Matches(param.Regex))
 				{
 					// If it's not an array, simple check the string value against the regex
 					throw new ParameterMatchException(param, value);
@@ -350,7 +276,7 @@ namespace Commander.NET
 				else if (convertedValue.GetType().IsArray)
 				{
 					// If it's an array, check every single value against the regex
-					if (value.Split(',').FirstOrDefault(val => !Match(val, param.Regex)) != null)
+					if (value.Split(',').FirstOrDefault(val => !value.Matches(param.Regex)) != null)
 					{
 						throw new ParameterMatchException(param, value);
 					}
@@ -421,19 +347,6 @@ namespace Commander.NET
 			else if (member is FieldInfo)
 			{
 				return (member as FieldInfo).GetValue(obj);
-			}
-			return null;
-		}
-
-		static Type GetType(MemberInfo member)
-		{
-			if (member is PropertyInfo)
-			{
-				return (member as PropertyInfo).PropertyType;
-			}
-			else if (member is FieldInfo)
-			{
-				return (member as FieldInfo).FieldType;
 			}
 			return null;
 		}

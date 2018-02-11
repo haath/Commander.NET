@@ -22,9 +22,12 @@ namespace Tests
 		[Parameter("-h", "--help", Description = "Print this message and exit.")]
 		public bool Help;
 
+		[Parameter("-t")]
+		public bool Test;
+
 		public override string ToString()
 		{
-			string s = ID + " " + Name + " " + Help + " ";
+			string s = ID + " " + Name + " " + Help + " " + Test;
 			return s;
 		}
 	}
@@ -34,7 +37,7 @@ namespace Tests
 
 		static void Main(string[] argc)
 		{
-			string[] args = { "-i", "123", "--name", "john" };
+			string[] args = { "-i", "123", "--name", "john", "-ht" };
 
 			Console.WriteLine(Regex.Match("shit", @"bacon|onion|tomato").Success);
 			Console.WriteLine(CommanderParser.Usage<Options>());
