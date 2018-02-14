@@ -310,7 +310,8 @@ else if (git.Push != null)
 }
 ```
 
-Any arguments passed **after** the name of the command, are parsed and serialized into that command.
+- If at least one command is specified, but no command name is found in the arguments, the parser will raise a `CommandMissingException`
+- Any arguments passed **after** the name of the command, are parsed and serialized into that command.
 
 
 ## //TODO

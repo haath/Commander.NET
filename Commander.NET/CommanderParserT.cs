@@ -184,6 +184,7 @@ namespace Commander.NET
 			else if (Utils.GetCommandNames<T>().Count > 0)
 			{
 				// The are commands, but no command was passed
+				throw new CommandMissingException();
 			}
 
 			return obj;
