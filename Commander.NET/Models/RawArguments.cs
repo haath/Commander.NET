@@ -8,12 +8,15 @@ using Commander.NET.Attributes;
 
 namespace Commander.NET.Models
 {
-    internal class RawArguments
+    internal class RawArguments<T>
 	{
 		HashSet<string> booleanKeys = new HashSet<string>();
 		List<string> positionalArguments = new List<string>();
 		List<string> flags = new List<string>();
 		Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+		
+		internal string Command { get; private set; }
+		internal int CommandIndex { get; private set; }
 
 		internal string this[int index]
 		{
@@ -30,6 +33,18 @@ namespace Commander.NET.Models
 			get { return positionalArguments.Count; }
 		}
 
+		internal RawArguments()
+		{
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>())
+			{
+				if (member.Type() == typeof(bool))
+				{
+					foreach (string booleanKey in member.GetCustomAttribute<ParameterAttribute>().Keys)
+						booleanKeys.Add(booleanKey);
+				}
+			}
+		}
+
 		internal string GetMatchingKey(IEnumerable<string> keys)
 		{
 			return keys.FirstOrDefault(key => keyValuePairs.ContainsKey(key));
@@ -40,8 +55,10 @@ namespace Commander.NET.Models
 			return new List<string>(positionalArguments);
 		}
 
-		internal RawArguments Parse(string[] args, Separators separators)
+		internal RawArguments<T> Parse(string[] args, Separators separators)
 		{
+			List<string> commands = Utils.GetCommandNames<T>();
+
 			for (int i = 0; i < args.Length; i++)
 			{
 				if ((args[i].Matches(@"^-[a-zA-Z0-9_]=\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_]{2,}=\w+$")) && separators.HasFlag(Separators.Equals)
@@ -70,26 +87,26 @@ namespace Commander.NET.Models
 				}
 				else if (args[i].Matches(@"^-[a-zA-Z0-9_]{2,}$"))
 				{
+					// Multiple flags
 					flags.AddRange(
 						args[i].ToCharArray().Select(c => c.ToString())
 						);
 				}
 				else
 				{
-					positionalArguments.Add(args[i]);
-				}
-			}
-			return this;
-		}
+					if (commands.Contains(args[i]))
+					{
+						// We caught a command name, stop parsing
+						Command = args[i];
+						CommandIndex = i;
 
-		internal RawArguments AddBooleanKeys<T>()
-		{
-			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>())
-			{
-				if (member.Type() == typeof(bool))
-				{
-					foreach (string booleanKey in member.GetCustomAttribute<ParameterAttribute>().Keys)
-						booleanKeys.Add(booleanKey);
+						return this;
+					}
+					else
+					{
+						// No commands with this name, add it to the positional arguments
+						positionalArguments.Add(args[i]);
+					}
 				}
 			}
 			return this;

@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using Commander.NET.Attributes;
+
 namespace Commander.NET
 {
     internal static class Utils
@@ -66,6 +68,30 @@ namespace Commander.NET
 			})
 			.OrderBy(n => n)
 			.ToArray();
+		}
+
+		internal static List<string> GetCommandNames<T>()
+		{
+			List<string> names = new List<string>();
+			foreach (MemberInfo member in GetParameterMembers<T, CommandAttribute>())
+			{
+				CommandAttribute cmd = member.GetCustomAttribute<CommandAttribute>();
+
+				names.AddRange(cmd.Names);
+			}
+			return names;
+		}
+
+		internal static MemberInfo GetCommandWithName<T>(string name)
+		{
+			foreach (MemberInfo member in GetParameterMembers<T, CommandAttribute>())
+			{
+				CommandAttribute cmd = member.GetCustomAttribute<CommandAttribute>();
+
+				if (cmd.Names.Contains(name))
+					return member;
+			}
+			return null;
 		}
 	}
 }

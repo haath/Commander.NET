@@ -173,7 +173,7 @@ Currently available separators:
 - Separators.Colon
 - Separators.All
 
-## Value Validation
+## Value validation
 
 This section lists the ways with which validate, format or even convert the values that 
 are passed to your parameters. Each individual value, goes through the following steps in that order:
@@ -182,7 +182,7 @@ are passed to your parameters. Each individual value, goes through the following
 2. Method validation
 3. Formatting
 
-### Regular Expression Validation
+### Regular Expression validation
 
 You can validate the values of a parameter through a regular expression, by setting the `Regex` property.
 
@@ -208,7 +208,7 @@ catch (ParameterMatchException ex)
 }
 ```
 
-### Method Validation
+### Method validation
 
 You can alsouse your own validation methods for values that are passed to a specific parameter by 
 implementing the `IParameterValidator` interface.
@@ -237,7 +237,7 @@ class PositiveInteger : IParameterValidator
 public int Age;
 ```
 
-### Value Formatting
+### Value formatting
 
 Similar to [method validation](#method_validation), you may want to declare your own methods
 for formatting - or event converting - certain parameter values. You may do this by implementing 

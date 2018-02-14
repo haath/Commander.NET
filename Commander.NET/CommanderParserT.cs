@@ -93,8 +93,7 @@ namespace Commander.NET
 			/*
 			 * Parse arguments
 			 */
-			RawArguments rawArgs = new RawArguments()
-									.AddBooleanKeys<T>()
+			RawArguments<T> rawArgs = new RawArguments<T>()
 									.Parse(args, separators);
 
 			/*
@@ -146,6 +145,9 @@ namespace Commander.NET
 				}
 			}
 
+			/*
+			 * Set the positional arguments list
+			 */
 			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterListAttribute>())
 			{
 				if (member.Type().IsArray)
@@ -156,6 +158,32 @@ namespace Commander.NET
 				{
 					SetValue(obj, member, rawArgs.GetPositionalArguments());
 				}
+			}
+
+			/*
+			 * Check if a command was entered
+			 */
+			if (rawArgs.Command != null)
+			{
+				string[] commandArgs = args.Skip(rawArgs.CommandIndex + 1).ToArray();
+				MemberInfo commandMember = Utils.GetCommandWithName<T>(rawArgs.Command);
+
+				Type parserType = typeof(CommanderParser<>).MakeGenericType(commandMember.Type());
+				object parser = Activator.CreateInstance(parserType, commandArgs);
+
+				// Set options
+				parserType.GetMethod("Separators").Invoke(parser, new object[] { separators });
+
+				// Parse the command
+				object command = parserType.GetMethod("Parse", new Type[] { typeof(string[]) })
+											.Invoke(parser, new object[] { commandArgs });
+
+				// Set the command back to the object
+				SetValue(obj, commandMember, command);
+			}
+			else if (Utils.GetCommandNames<T>().Count > 0)
+			{
+				// The are commands, but no command was passed
 			}
 
 			return obj;
