@@ -173,11 +173,44 @@ Currently available separators:
 - Separators.Colon
 - Separators.All
 
-## Value validation
+## Value Validation
+
+This section lists the ways with which validate, format or even convert the values that 
+are passed to your parameters. Each individual value, goes through the following steps in that order:
+
+1. Regex validation
+2. Method validation
+3. Formatting
+
+### Regular Expression Validation
+
+You can validate the values of a parameter through a regular expression, by setting the `Regex` property.
+
+```csharp
+[Parameter("-n", "--name", Regex = "^john|mary$")]
+public string Name;
+```
+
+If the regex match failes, a `ParameterMatchException` is thrown, as it shown below.
+
+```csharp
+string[] args = { "-n", "james" };
+
+try
+{
+	Options opts = CommanderParser.Parse<Options>(args);
+	Console.WriteLine(opts.ToString());
+}
+catch (ParameterMatchException ex)
+{
+	// Parameter -n: value "james" did not match the regular expression "^john|mary$"
+	Console.WriteLine(ex.Message);
+}
+```
 
 ### Method Validation
 
-You can use your own validation methods for values that are passed to a specific parameter by 
+You can alsouse your own validation methods for values that are passed to a specific parameter by 
 implementing the `IParameterValidator` interface.
 
 If the `Validate()` method returns `false`, then a `ParameterValidationException` is thrown
@@ -204,34 +237,10 @@ class PositiveInteger : IParameterValidator
 public int Age;
 ```
 
-### Regular Expression Validation
-
-You can also validate the values of a parameter through a regular expression, by setting the `Regex` property.
-
-```csharp
-[Parameter("-n", "--name", Regex = "^john|mary$")]
-public string Name;
-```
-
-```csharp
-string[] args = { "-n", "james" };
-
-try
-{
-	Options opts = CommanderParser.Parse<Options>(args);
-	Console.WriteLine(opts.ToString());
-}
-catch (ParameterMatchException ex)
-{
-	// Parameter -n: value "james" did not match the regular expression "^john|mary$"
-	Console.WriteLine(ex.Message);
-}
-```
-
-## Value Formatting
+### Value Formatting
 
 Similar to [method validation](#method_validation), you may want to declare your own methods
-for formatting - or event converting - certain parameters. You may do this by implementing 
+for formatting - or event converting - certain parameter values. You may do this by implementing 
 the `IParameterFormatter` interface.
 
 The object returned by the `Format()` method will be directly set to the 
