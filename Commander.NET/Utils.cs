@@ -25,6 +25,15 @@ namespace Commander.NET
 			}
 		}
 
+		internal static IEnumerable<MethodInfo> GetMethods<T, Q>() where Q : Attribute
+		{
+			foreach (MethodInfo method in typeof(T).GetMethods())
+			{
+				if (method.GetCustomAttribute<Q>() != null)
+					yield return method;
+			}
+		}
+
 		internal static Type Type(this MemberInfo member)
 		{
 			if (member is PropertyInfo)

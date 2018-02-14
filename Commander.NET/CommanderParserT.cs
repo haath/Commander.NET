@@ -35,6 +35,18 @@ namespace Commander.NET
 		}
 
 		/// <summary>
+		/// Add arguments by splitting up a line.
+		/// Useful if you're getting commands from a file, or interactively through Console.ReadLine().
+		/// </summary>
+		/// <param name="line"></param>
+		/// <returns></returns>
+		public CommanderParser<T> AddLine(string line)
+		{
+			string[] args = Utils.SplitArgumentsLine(line);
+			return Add(args);
+		}
+
+		/// <summary>
 		/// Set which key-value separators are considered valid.
 		/// <para>By default, only the "--key value" format is considered valid.</para>
 		/// </summary>
@@ -167,8 +179,9 @@ namespace Commander.NET
 			{
 				string[] commandArgs = args.Skip(rawArgs.CommandIndex + 1).ToArray();
 				MemberInfo commandMember = Utils.GetCommandWithName<T>(rawArgs.Command);
+				Type commandType = commandMember.Type();
 
-				Type parserType = typeof(CommanderParser<>).MakeGenericType(commandMember.Type());
+				Type parserType = typeof(CommanderParser<>).MakeGenericType(commandType);
 				object parser = Activator.CreateInstance(parserType, commandArgs);
 
 				// Set options
@@ -180,6 +193,24 @@ namespace Commander.NET
 
 				// Set the command back to the object
 				SetValue(obj, commandMember, command);
+
+				// Call the command handlers
+				if (typeof(ICommand).IsAssignableFrom(commandType))
+				{
+					// First the handler on the command object, if it implements ICommand
+					(command as ICommand).Execute(obj);
+				}
+				foreach (MethodInfo handler in Utils.GetMethods<T, CommandHandlerAttribute>())
+				{
+					// Then check if the parent object has any handler for this command
+
+					ParameterInfo[] handlerParams = handler.GetParameters();
+
+					if (handlerParams.Length == 1 && handlerParams[0].ParameterType == commandType)
+					{
+						handler.Invoke(obj, new object[] { command });
+					}
+				}
 			}
 			else if (Utils.GetCommandNames<T>().Count > 0)
 			{

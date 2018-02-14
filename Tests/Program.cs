@@ -13,26 +13,27 @@ using Commander.NET.Interfaces;
 
 namespace Tests
 {
-	class Program
+	public class Program
 	{
+		public static InteractivePrompt Prompt;
 
 		static void Main(string[] argc)
 		{
 			string[] args = { "push", "origin", "master" };
 
-			InteractivePrompt prompt = new InteractivePrompt();
+			Prompt = new InteractivePrompt();
 			
 			while (true)
 			{
-				Git git = prompt.ReadCommand<Git>();
+				Git git = Prompt.ReadCommand<Git>();
 
 				if (git.Commit != null)
 				{
-					prompt.WriteLine("Commiting: " + git.Commit.Message);
+					Prompt.WriteLine("Commiting: " + git.Commit.Message);
 				}
 				else if (git.Push != null)
 				{
-					prompt.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
+					Prompt.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
 				}
 			}
 		}
@@ -44,13 +45,18 @@ namespace Tests
 		public string Message;
 	}
 
-	class Push
+	class Push : ICommand
 	{
 		[PositionalParameter(0, "remote")]
 		public string Remote;
 
 		[PositionalParameter(1, "branch")]
 		public string Branch;
+
+		void ICommand.Execute(object parent)
+		{
+			Program.Prompt.WriteLine(456);
+		}
 	}
 
 	class Git
@@ -66,5 +72,11 @@ namespace Tests
 
 		[PositionalParameter(0, "remote", Description = "desc")]
 		public string Remote = "asdf";
+
+		[CommandHandler]
+		public void PushCommand(Push push)
+		{
+			Program.Prompt.WriteLine(123);
+		}
 	}
 }
