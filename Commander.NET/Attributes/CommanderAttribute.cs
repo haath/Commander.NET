@@ -28,6 +28,13 @@ namespace Commander.NET.Attributes
 		/// An instance of this type will be used to validate the value passed to this parameter through the IParameterValidator.Validate() method.
 		/// </summary>
 		public Type ValidateWith;
+
+		/// <summary>
+		/// A non-static type with a public parameterless constructor, which implements IParameterFormatter. 
+		/// An instance of this type will be used to format the value passed to this parameter through the IParameterFormatter.Format() method.
+		/// The object returned by the Format() method will be directly set to the parameter with no other formatting or type conversion.
+		/// </summary>
+		public Type FormatWith;
 	}
 
 	public enum Required

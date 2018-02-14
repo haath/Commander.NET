@@ -7,6 +7,7 @@ using System.Text;
 using Commander.NET.Models;
 using Commander.NET.Attributes;
 using Commander.NET.Exceptions;
+using Commander.NET.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace Commander.NET
@@ -113,11 +114,11 @@ namespace Commander.NET
 				}
 				else
 				{
-					string value = rawArgs.GetValue(param.Keys);
+					string matchingKey = rawArgs.GetMatchingKey(param.Keys);
 
-					if (value != null)
+					if (matchingKey != null)
 					{
-						SetValue(obj, member, param, value);
+						SetValue(obj, member, param, matchingKey, rawArgs[matchingKey]);
 					}
 					else if (ParamRequired<T>(defaultObject, param, member))
 					{
@@ -136,7 +137,7 @@ namespace Commander.NET
 
 				if (param.Index < rawArgs.PositionalArguments)
 				{
-					SetValue(obj, member, param, rawArgs[(int)param.Index]);
+					SetValue(obj, member, param, param.Name, rawArgs[(int)param.Index]);
 				}
 				else if (ParamRequired<T>(defaultObject, param, member))
 				{
@@ -257,19 +258,8 @@ namespace Commander.NET
 				|| (param.Required == Required.Default && GetDefaultValue<T>(defaultObj, member) == null);
 		}
 
-		static void SetValue<T>(T obj, MemberInfo member, CommanderAttribute param, string value)
+		static void SetValue<T>(T obj, MemberInfo member, CommanderAttribute param, string name, string value)
 		{
-			object convertedValue;
-			try
-			{
-				convertedValue = ValueParse(member.Type(), value);
-			}
-			catch (FormatException)
-			{
-				// The value had to be parsed to a numerical type and failed
-				throw new ParameterFormatException(param, value, member.GetType());
-			}
-
 			if (param.Regex != null)
 			{
 				// We need to validate this value with a regex
@@ -291,11 +281,44 @@ namespace Commander.NET
 			if (param.ValidateWith != null)
 			{
 				// We need to validate this value with a validator
+				if (!typeof(IParameterValidator).IsAssignableFrom(param.FormatWith))
+				{
+					throw new ValidatorTypeException(param.ValidateWith);
+				}
+
 				IParameterValidator validator = (IParameterValidator)Activator.CreateInstance(param.ValidateWith);
 
-				if (!validator.Validate("asdf", value))
+				if (!validator.Validate(name, value))
 				{
 					throw new ParameterValidationException(validator);
+				}
+			}
+
+			object convertedValue;
+
+			if (param.FormatWith != null)
+			{
+				// We need to format this value
+				if (!typeof(IParameterFormatter).IsAssignableFrom(param.FormatWith))
+				{
+					throw new FormatterTypeException(param.FormatWith);
+				}
+
+				IParameterFormatter formatter = (IParameterFormatter)Activator.CreateInstance(param.FormatWith);
+
+				convertedValue = formatter.Format(name, value);
+			}
+			else
+			{
+				// We need to try and convert the value ourselves
+				try
+				{
+					convertedValue = ValueParse(member.Type(), value);
+				}
+				catch (FormatException)
+				{
+					// The value had to be parsed to a numerical type and failed
+					throw new ParameterFormatException(param, value, member.GetType());
 				}
 			}
 

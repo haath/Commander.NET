@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using Commander.NET.Interfaces;
+
 namespace Commander.NET.Exceptions
 {
     public class ParameterValidationException : Exception

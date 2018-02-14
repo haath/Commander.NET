@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Commander.NET
+namespace Commander.NET.Interfaces
 {
     public interface IParameterValidator
     {

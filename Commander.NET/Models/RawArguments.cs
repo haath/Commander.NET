@@ -20,16 +20,19 @@ namespace Commander.NET.Models
 			get { return positionalArguments[index]; }
 		}
 
+		internal string this[string key]
+		{
+			get { return keyValuePairs[key]; }
+		}
+
 		internal int PositionalArguments
 		{
 			get { return positionalArguments.Count; }
 		}
 
-		internal string GetValue(IEnumerable<string> keys)
+		internal string GetMatchingKey(IEnumerable<string> keys)
 		{
-			return keys.Where(key => keyValuePairs.ContainsKey(key))
-						.Select(key => keyValuePairs[key])
-						.FirstOrDefault();
+			return keys.FirstOrDefault(key => keyValuePairs.ContainsKey(key));
 		}
 
 		internal List<string> GetPositionalArguments()
