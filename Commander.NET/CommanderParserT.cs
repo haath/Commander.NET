@@ -263,25 +263,16 @@ namespace Commander.NET
 			if (param.Regex != null)
 			{
 				// We need to validate this value with a regex
-				if (!convertedValue.GetType().IsArray && !value.Matches(param.Regex))
+				if (!value.Matches(param.Regex))
 				{
-					// If it's not an array, simple check the string value against the regex
 					throw new ParameterMatchException(param, value);
-				}
-				else if (convertedValue.GetType().IsArray)
-				{
-					// If it's an array, check every single value against the regex
-					if (value.Split(',').FirstOrDefault(val => !value.Matches(param.Regex)) != null)
-					{
-						throw new ParameterMatchException(param, value);
-					}
 				}
 			}
 
 			if (param.ValidateWith != null)
 			{
 				// We need to validate this value with a validator
-				if (!typeof(IParameterValidator).IsAssignableFrom(param.FormatWith))
+				if (!typeof(IParameterValidator).IsAssignableFrom(param.ValidateWith))
 				{
 					throw new ValidatorTypeException(param.ValidateWith);
 				}

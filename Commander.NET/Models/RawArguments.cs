@@ -56,7 +56,9 @@ namespace Commander.NET.Models
 				{
 					string key = args[i].TrimStart('-');
 
-					if (!booleanKeys.Contains(key) && i < args.Length - 1 && !args[i + 1].StartsWith("-"))
+					int intTest;
+					if (!booleanKeys.Contains(key) && i < args.Length - 1 
+						&& (!args[i + 1].StartsWith("-") || int.TryParse(args[i+1], out intTest)))
 					{
 						TryAddKeyValuePair(key, args[i + 1]);
 						i++;

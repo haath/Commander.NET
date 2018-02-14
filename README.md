@@ -5,7 +5,7 @@ C# command-line argument parsing and serialization via attributes. Inspired by [
 If you would like to expand this library, please include examples in your PR or issue, of widely-used CLI tools that
 support your suggested practice or format.
 
-## Usage
+# Usage
 
 First you need to create a non-abstract class, with a public parameterless constructor, 
 which will describe the parameters.
@@ -42,7 +42,7 @@ Or statically
 Options options = CommanderParser.Parse<Options>(args);
 ```
 
-### Required parameters
+## Required parameters
 
 You may specify which of the parameters are required by setting the `Required` property of the attributes.
 
@@ -69,7 +69,7 @@ As seen in the above example, the `Required` enum can have one of three values:
 - **Required.Default**
   - The parameter will be considered to be **required** only if the default value of the relevant field is `null`. 
 
-### Generate a usage summary
+## Generate a usage summary
 
 ```csharp
 CommanderParser<Options> parser = new CommanderParser<Options>();
@@ -93,7 +93,7 @@ Options:
 
 An asterisk prefix implies that the option is required.
 
-### Exceptions
+## Exceptions
 
 ```csharp
 using Commander.NET.Exceptions;
@@ -119,7 +119,7 @@ catch (ParameterFormatException ex)
 }
 ```
 
-### Positional parameters
+## Positional parameters
 
 You can define positional parameters using the `PositionalParameter` attribute.
 
@@ -153,7 +153,7 @@ You may also get all the positional parameters that were passed, using the `Posi
 public string[] Parameters;
 ```
 
-### Key-Value separators
+## Key-Value separators
 
 By default, the parser will only consider key-value pairs that are separated by a space.
 You can change that by setting the Separators flags of the parser.
@@ -173,18 +173,35 @@ Currently available separators:
 - Separators.Colon
 - Separators.All
 
-### Value validation
+## Value validation
+
+### Method Validation
+
+You can use your own validation methods for values that are passed to a specific parameter by 
+implementing the `IParameterValidator` interface.
+
+If the `Validate()` method returns `false`, then a `ParameterValidationException` is thrown
+by the parser. Alternatively, you can use this method to throw your own exceptions, and they will rise
+to where you called you called the parser from.
+
+The following basic example makes sure that the argument passed to the `Age` parameter is a positive integer.
 
 ```csharp
-[Parameter("-a", "--age")]
-public int Age;
+using Commander.NET.Interfaces;
 
-[ParameterValidator("-a")]
-public bool PositiveInteger(string value)
+class PositiveInteger : IParameterValidator
 {
-	int intVal;
-	return int.TryParse(value, out intVal) && intVal > 0;
+	bool IParameterValidator.Validate(string name, string value)
+	{
+		int intVal;
+		return int.TryParse(value, out intVal) && intVal > 0;
+	}
 }
+```
+
+```csharp
+[Parameter("-a", "--age", ValidateWith = typeof(PositiveInteger))]
+public int Age;
 ```
 
 ### Regular Expression Validation
@@ -211,11 +228,38 @@ catch (ParameterMatchException ex)
 }
 ```
 
+## Value Formatting
+
+Similar to [method validation](#method_validation), you may want to declare your own methods
+for formatting - or event converting - certain parameters. You may do this by implementing 
+the `IParameterFormatter` interface.
+
+The object returned by the `Format()` method will be directly set to the 
+parameter with no other formatting or type conversion.
+
+The following basic example, converts whatever value is passed to the `--ascii` parameter into a byte array.
+
+```csharp
+using Commander.NET.Interfaces;
+
+class StringToBytes : IParameterFormatter
+{
+	object IParameterFormatter.Format(string name, string value)
+	{
+		return Encoding.ASCII.GetBytes(value);
+	}
+}
+```
+
+```csharp
+[Parameter("--ascii", FormatWith = typeof(StringToBytes))]
+public byte[] ascii;
+```
+
 ### //TODO
 
 - Reverse positional indexing
 - Passing multiple comma-separated values
 - Specifying possible values. (f.e bacon|onions|tomatoes) Will be doable by default with regex, but enum support will be nice.
-- Specifying methods for input validation (these are not allowed in attributes, will likely have to be other methods within the class)
 - [Commands](http://jcommander.org/#_more_complex_syntaxes_commands)
 
