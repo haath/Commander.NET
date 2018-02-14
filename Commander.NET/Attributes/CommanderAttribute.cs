@@ -22,6 +22,12 @@ namespace Commander.NET.Attributes
 		/// If the passed value does not match, the parser will raise a ParameterMatchException.
 		/// </summary>
 		public string Regex;
+
+		/// <summary>
+		/// A non-static type with a public parameterless constructor, which implements IParameterValidator. 
+		/// An instance of this type will be used to validate the value passed to this parameter through the IParameterValidator.Validate() method.
+		/// </summary>
+		public Type ValidateWith;
 	}
 
 	public enum Required

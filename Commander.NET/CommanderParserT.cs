@@ -288,6 +288,17 @@ namespace Commander.NET
 				}
 			}
 
+			if (param.ValidateWith != null)
+			{
+				// We need to validate this value with a validator
+				IParameterValidator validator = (IParameterValidator)Activator.CreateInstance(param.ValidateWith);
+
+				if (!validator.Validate("asdf", value))
+				{
+					throw new ParameterValidationException(validator);
+				}
+			}
+
 			SetValue(obj, member, convertedValue);
 		}
 
