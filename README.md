@@ -5,6 +5,8 @@ C# command-line argument parsing and serialization via attributes. Inspired by [
 If you would like to expand this library, please include examples in your PR or issue, of widely-used CLI tools that
 support your suggested practice or format.
 
+Available on [NuGet](https://www.nuget.org/packages/Commander.NET).
+
 # Usage
 
 First you need to create a non-abstract class, with a public parameterless constructor, 
