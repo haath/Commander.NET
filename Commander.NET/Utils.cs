@@ -93,5 +93,45 @@ namespace Commander.NET
 			}
 			return null;
 		}
+
+		internal static string[] SplitArgumentsLine(string line)
+		{
+			List<string> args = new List<string>();
+			StringBuilder quotesArg = null;
+			string curQuote = null;
+			foreach (string part in line.Split(' '))
+			{
+				if (quotesArg == null)
+				{
+					if ((part.StartsWith("'") && part.EndsWith("'"))
+						|| (part.StartsWith("\"") && part.EndsWith("\"")))
+					{
+						args.Add(part.Substring(1, part.Length - 2));
+					}
+					if (part.StartsWith("'") || part.StartsWith("\""))
+					{
+						quotesArg = new StringBuilder(part.Substring(1));
+						curQuote = part.StartsWith("'") ? "'" : "\"";
+					}
+					else
+					{
+						args.Add(part);
+					}
+				}
+				else
+				{
+					string value = part.EndsWith(curQuote) ? part.Substring(0, part.Length - 1) : part;
+
+					quotesArg.Append(" ").Append(value);
+
+					if (part.EndsWith(curQuote))
+					{
+						args.Add(quotesArg.ToString());
+						quotesArg = null;
+					}
+				}
+			}
+			return args.ToArray();
+		}
 	}
 }

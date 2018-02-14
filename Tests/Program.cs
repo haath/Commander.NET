@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 using Commander.NET;
 using Commander.NET.Attributes;
@@ -19,20 +20,21 @@ namespace Tests
 		{
 			string[] args = { "push", "origin", "master" };
 
-			CommanderParser<Git> parser = new CommanderParser<Git>();
-
-			Git git = parser.Parse(args);
-
-			if (git.Commit != null)
+			InteractivePrompt prompt = new InteractivePrompt();
+			
+			while (true)
 			{
-				Console.WriteLine("Commiting: " + git.Commit.Message);
-			}
-			else if (git.Push != null)
-			{
-				Console.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
-			}
+				Git git = prompt.ReadCommand<Git>();
 
-			Console.WriteLine(parser.Usage());
+				if (git.Commit != null)
+				{
+					prompt.WriteLine("Commiting: " + git.Commit.Message);
+				}
+				else if (git.Push != null)
+				{
+					prompt.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
+				}
+			}
 		}
 	}
 
