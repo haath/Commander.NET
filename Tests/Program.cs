@@ -31,6 +31,8 @@ namespace Tests
 			{
 				Console.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
 			}
+
+			Console.WriteLine(parser.Usage());
 		}
 	}
 
@@ -56,5 +58,11 @@ namespace Tests
 
 		[Command("push")]
 		public Push Push;
+
+		[Parameter("-v", Description = "Increase verbosity")]
+		public bool Verbose;
+
+		[PositionalParameter(0, "remote", Description = "desc")]
+		public string Remote = "asdf";
 	}
 }

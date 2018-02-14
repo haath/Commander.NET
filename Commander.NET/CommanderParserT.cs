@@ -209,6 +209,8 @@ namespace Commander.NET
 																	.OrderBy(member => member.GetCustomAttribute<PositionalParameterAttribute>().Index);
 			IOrderedEnumerable<MemberInfo> optionParams = Utils.GetParameterMembers<T, ParameterAttribute>()
 																	.OrderBy(member => member.GetCustomAttribute<ParameterAttribute>().Names[0]);
+			IOrderedEnumerable<MemberInfo> commands = Utils.GetParameterMembers<T, CommandAttribute>()
+																	.OrderBy(member => member.GetCustomAttribute<CommandAttribute>().Names[0]);
 
 			foreach (MemberInfo member in positionalParams)
 			{
@@ -225,6 +227,11 @@ namespace Commander.NET
 				}
 			}
 
+			if (commands.Count() > 0)
+			{
+				usage.Append("<command>");
+			}
+
 			usage.AppendLine();
 
 			foreach (MemberInfo member in positionalParams)
@@ -233,7 +240,26 @@ namespace Commander.NET
 				// Print positional argument descriptions
 				if (param.Description != null)
 				{
-					usage.AppendFormat("{0}{1}: {2}\n", indentation, param.Name, param.Description);
+					usage.AppendFormat("{0}{1}{2}{3}\n", indentation, param.Name, indentation, param.Description);
+				}
+			}
+
+			if (commands.Count() > 0)
+			{
+				usage.AppendLine("Commands:");
+
+				foreach (MemberInfo member in commands)
+				{
+					CommandAttribute param = member.GetCustomAttribute<CommandAttribute>();
+					// Print command descriptions
+					if (param.Description != null)
+					{
+						usage.AppendFormat("{0}{1}{2}{3}\n", indentation, param.Names[0], indentation, param.Description);
+					}
+					else
+					{
+						usage.AppendFormat("{0}{1}\n", indentation, param.Names[0]);
+					}
 				}
 			}
 

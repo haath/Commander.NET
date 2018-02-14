@@ -265,7 +265,55 @@ class StringToBytes : IParameterFormatter
 public byte[] ascii;
 ```
 
-### //TODO
+## Commands
+
+Commands are usually a very important method for separating the different functionalities of a CLI program.
+Consider the following example, based on the popular `git` tool.
+
+```csharp
+class Git
+{
+	[Command("commit")]
+	public Commit Commit;
+
+	[Command("push")]
+	public Push Push;
+}
+
+class Commit
+{
+	[Parameter("-m")]
+	public string Message;
+}
+
+class Push
+{
+	[PositionalParameter(0, "remote")]
+	public string Remote;
+
+	[PositionalParameter(1, "branch")]
+	public string Branch;
+}
+```
+
+```csharp
+Git git = new CommanderParser<Git>()
+                         .Parse(args);
+
+if (git.Commit != null)
+{
+	Console.WriteLine("Commiting: " + git.Commit.Message);
+}
+else if (git.Push != null)
+{
+	Console.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
+}
+```
+
+Any arguments passed **after** the name of the command, are parsed and serialized into that command.
+
+
+## //TODO
 
 - Reverse positional indexing
 - Passing multiple comma-separated values
