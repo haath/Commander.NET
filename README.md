@@ -315,6 +315,60 @@ else if (git.Push != null)
 - If at least one command is specified, but no command name is found in the arguments, the parser will raise a `CommandMissingException`
 - Any arguments passed **after** the name of the command, are parsed and serialized into that command.
 
+### Command handlers
+
+In the example above, to find out which command was issued we were comparing each command variable with null
+to find out which had been instantiated. Alternatively though, you can avoid any manual checks by using
+custom handlers for commands.
+
+When the parsing and serialization of the arguments of an object has completed, the type of the command
+variable is checked for the `ICommand` interface. If the command type implements said interface, then
+the `ICommand.Execute()` is called on that object. 
+
+The `object parent` argument that is path to this method, is the - already initialized - object, 
+through which this command was called. In our example, this argument will contain the `Git` object.
+
+```csharp
+class Commit : ICommand
+{
+	[Parameter("-m")]
+	public string Message;
+
+	void ICommand.Execute(object parent)
+	{
+		// The "commit" command was issued
+	}
+}
+```
+
+After the above callback, the base class is then checked for methods with the `CommandHandler` attribute.
+If any such method in the class has exactly one parameter and that parameter is of the same type
+as the command that is being executed, the method will be invoked.
+
+
+```csharp
+class Git
+{
+	[Command("commit")]
+	public Commit Commit;
+
+	[Command("push")]
+	public Push Push;
+
+	[CommandHandler]
+	public void PushCommand(Push push)
+	{
+		// The "push" command was issued
+	}
+
+	[CommandHandler]
+	public void CommitCommand(Commit commit)
+	{
+		// The "commit" command was issued
+	}
+}
+```
+
 
 ## //TODO
 
