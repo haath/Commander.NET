@@ -21,7 +21,8 @@ namespace Tests
 		{
 			string[] args = { "push", "origin", "master" };
 
-			Prompt = new InteractivePrompt();
+			Prompt = InteractivePrompt.GetPrompt();
+			Prompt.WriteLine(Prompt.GetType());
 
 			Task.Run(() =>
 			{
