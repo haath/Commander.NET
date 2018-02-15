@@ -13,12 +13,12 @@ namespace Commander.NET
 	{
 		internal static IEnumerable<MemberInfo> GetParameterMembers<T, Q>() where Q : Attribute
 		{
-			foreach (MemberInfo member in typeof(T).GetProperties())
+			foreach (MemberInfo member in typeof(T).GetTypeInfo().GetProperties())
 			{
 				if (member.GetCustomAttribute<Q>() != null)
 					yield return member;
 			}
-			foreach (MemberInfo member in typeof(T).GetFields())
+			foreach (MemberInfo member in typeof(T).GetTypeInfo().GetFields())
 			{
 				if (member.GetCustomAttribute<Q>() != null)
 					yield return member;
@@ -27,7 +27,7 @@ namespace Commander.NET
 
 		internal static IEnumerable<MethodInfo> GetMethods<T, Q>() where Q : Attribute
 		{
-			foreach (MethodInfo method in typeof(T).GetMethods())
+			foreach (MethodInfo method in typeof(T).GetTypeInfo().GetMethods())
 			{
 				if (method.GetCustomAttribute<Q>() != null)
 					yield return method;

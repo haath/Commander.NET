@@ -185,17 +185,18 @@ namespace Commander.NET
 				object parser = Activator.CreateInstance(parserType, commandArgs);
 
 				// Set options
-				parserType.GetMethod("Separators").Invoke(parser, new object[] { separators });
+				parserType.GetTypeInfo().GetMethod("Separators", new Type[] { typeof(Separators) })
+				          .Invoke(parser, new object[] { separators });
 
 				// Parse the command
-				object command = parserType.GetMethod("Parse", new Type[] { typeof(string[]) })
+				object command = parserType.GetTypeInfo().GetMethod("Parse", new Type[] { typeof(string[]) })
 											.Invoke(parser, new object[] { commandArgs });
 
 				// Set the command back to the object
 				SetValue(obj, commandMember, command);
 
 				// Call the command handlers
-				if (typeof(ICommand).IsAssignableFrom(commandType))
+				if (typeof(ICommand).GetTypeInfo().IsAssignableFrom(commandType))
 				{
 					// First the handler on the command object, if it implements ICommand
 					(command as ICommand).Execute(obj);
@@ -231,7 +232,8 @@ namespace Commander.NET
 		/// <returns></returns>
 		public string Usage(string executableName = null, int indentationSpaces = 4)
 		{
-			executableName = executableName ?? AppDomain.CurrentDomain.FriendlyName;
+			string executable = Environment.GetCommandLineArgs()[0];
+			executableName = executableName ?? executable;
 			string indentation = string.Join("", new int[indentationSpaces].Select(s => " "));
 
 			StringBuilder usage = new StringBuilder();
@@ -358,7 +360,7 @@ namespace Commander.NET
 			if (param.ValidateWith != null)
 			{
 				// We need to validate this value with a validator
-				if (!typeof(IParameterValidator).IsAssignableFrom(param.ValidateWith))
+				if (!typeof(IParameterValidator).GetTypeInfo().IsAssignableFrom(param.ValidateWith))
 				{
 					throw new ValidatorTypeException(param.ValidateWith);
 				}
@@ -376,7 +378,7 @@ namespace Commander.NET
 			if (param.FormatWith != null)
 			{
 				// We need to format this value
-				if (!typeof(IParameterFormatter).IsAssignableFrom(param.FormatWith))
+				if (!typeof(IParameterFormatter).GetTypeInfo().IsAssignableFrom(param.FormatWith))
 				{
 					throw new FormatterTypeException(param.FormatWith);
 				}
