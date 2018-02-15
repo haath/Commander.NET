@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <PackageVersion>1.1.2</PackageVersion>
+    <TargetFrameworks>netstandard1.6;netstandard2.0</TargetFrameworks>
     <Authors>G. Mantaos</Authors>
     <Company>G. Mantaos</Company>
     <Title>Commander.NET</Title>
@@ -14,7 +15,7 @@
     <Description>Command-line argument parser.</Description>
     <Summary>Command-line argument parser.</Summary>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageVersion>1.1.1</PackageVersion>
+    <Version>1.1.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
