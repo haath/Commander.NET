@@ -22,19 +22,23 @@ namespace Tests
 			string[] args = { "push", "origin", "master" };
 
 			Prompt = new InteractivePrompt();
-			
+
+			Task.Run(() =>
+			{
+				int i = 0;
+				while (true)
+				{
+					Prompt.WriteLine(i++);
+
+
+					Thread.Sleep(500);
+				}
+			});
+
 			while (true)
 			{
-				Git git = Prompt.ReadCommand<Git>();
-
-				if (git.Commit != null)
-				{
-					Prompt.WriteLine("Commiting: " + git.Commit.Message);
-				}
-				else if (git.Push != null)
-				{
-					Prompt.WriteLine("Pushing to: " + git.Push.Remote + " " + git.Push.Branch);
-				}
+				string l = Prompt.ReadLine();
+				Prompt.WriteLine("=> " + l);
 			}
 		}
 	}
