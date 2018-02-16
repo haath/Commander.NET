@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageVersion>1.1.2</PackageVersion>
     <TargetFrameworks>netstandard1.6;netstandard2.0</TargetFrameworks>
     <Authors>G. Mantaos</Authors>
     <Company>G. Mantaos</Company>
@@ -11,11 +10,11 @@
     <PackageIconUrl>https://raw.githubusercontent.com/gmantaos/Commander.NET/master/Assets/icon.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/gmantaos/Commander.NET</RepositoryUrl>
     <PackageTags>cmd command line argument args arguments command-line commander commander.js jcommander parser parsing</PackageTags>
-    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Made private fields visible to the parser with an option to disable.</PackageReleaseNotes>
     <Description>Command-line argument parser.</Description>
     <Summary>Command-line argument parser.</Summary>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -369,6 +369,17 @@ class Git
 }
 ```
 
+### Private fields
+
+By default, private and static fields, properties and methods are visible to the parser, even if their
+respective accessors are not public. You can change this behavior by manually passing the 
+`System.Reflection.BindingFlags` flags to the parser.
+
+```csharp
+CommanderParser<Options> parser = new CommanderParser<Options>();
+
+parser.Bindings(BindingFlags.Public | BindingFlags.Instance);
+```
 
 ## //TODO
 

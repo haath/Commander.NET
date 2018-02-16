@@ -10,6 +10,7 @@ namespace Commander.NET.Models
 {
     internal class RawArguments<T>
 	{
+		BindingFlags bindingFlags;
 		HashSet<string> booleanKeys = new HashSet<string>();
 		List<string> positionalArguments = new List<string>();
 		List<string> flags = new List<string>();
@@ -33,9 +34,10 @@ namespace Commander.NET.Models
 			get { return positionalArguments.Count; }
 		}
 
-		internal RawArguments()
+		internal RawArguments(BindingFlags bindingFlags)
 		{
-			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>())
+			this.bindingFlags = bindingFlags;
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>(bindingFlags))
 			{
 				if (member.Type() == typeof(bool))
 				{
@@ -57,7 +59,7 @@ namespace Commander.NET.Models
 
 		internal RawArguments<T> Parse(string[] args, Separators separators)
 		{
-			List<string> commands = Utils.GetCommandNames<T>();
+			List<string> commands = Utils.GetCommandNames<T>(bindingFlags);
 
 			for (int i = 0; i < args.Length; i++)
 			{

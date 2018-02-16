@@ -17,6 +17,7 @@ namespace Commander.NET
 		T defaultObject;
 		string[] args;
 		Separators separators = Commander.NET.Separators.Space;
+		BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
 
 		public CommanderParser()
 		{
@@ -27,6 +28,8 @@ namespace Commander.NET
 		{
 			Add(args);
 		}
+
+		#region options
 
 		public CommanderParser<T> Add(params string[] args)
 		{
@@ -58,7 +61,21 @@ namespace Commander.NET
 			return this;
 		}
 
-		#region Public
+		/// <summary>
+		/// Set the binding flags for getting a type's fields, properties and methods.
+		/// <para>The default value is: BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static</para>
+		/// </summary>
+		/// <param name="bindingFlags"></param>
+		/// <returns></returns>
+		public CommanderParser<T> Bindings(BindingFlags bindingFlags)
+		{
+			this.bindingFlags = bindingFlags;
+			return this;
+		}
+
+		#endregion
+
+		#region parsing
 
 		/// <summary>
 		/// Parse the given arguments - along with any other arguments added to this object - and serialize them into a new instance of a T object.
@@ -105,13 +122,13 @@ namespace Commander.NET
 			/*
 			 * Parse arguments
 			 */
-			RawArguments<T> rawArgs = new RawArguments<T>()
+			RawArguments<T> rawArgs = new RawArguments<T>(bindingFlags)
 									.Parse(args, separators);
 
 			/*
 			 * Set named arguments
 			 */
-			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>())
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, ParameterAttribute>(bindingFlags))
 			{
 				ParameterAttribute param = member.GetCustomAttribute<ParameterAttribute>();
 
@@ -142,7 +159,7 @@ namespace Commander.NET
 			/*
 			 * Set positional arguments
 			 */
-			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterAttribute>())
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterAttribute>(bindingFlags))
 			{
 				PositionalParameterAttribute param = member.GetCustomAttribute<PositionalParameterAttribute>();
 
@@ -160,7 +177,7 @@ namespace Commander.NET
 			/*
 			 * Set the positional arguments list
 			 */
-			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterListAttribute>())
+			foreach (MemberInfo member in Utils.GetParameterMembers<T, PositionalParameterListAttribute>(bindingFlags))
 			{
 				if (member.Type().IsArray)
 				{
@@ -178,7 +195,7 @@ namespace Commander.NET
 			if (rawArgs.Command != null)
 			{
 				string[] commandArgs = args.Skip(rawArgs.CommandIndex + 1).ToArray();
-				MemberInfo commandMember = Utils.GetCommandWithName<T>(rawArgs.Command);
+				MemberInfo commandMember = Utils.GetCommandWithName<T>(rawArgs.Command, bindingFlags);
 				Type commandType = commandMember.Type();
 
 				Type parserType = typeof(CommanderParser<>).MakeGenericType(commandType);
@@ -187,6 +204,9 @@ namespace Commander.NET
 				// Set options
 				parserType.GetTypeInfo().GetMethod("Separators", new Type[] { typeof(Separators) })
 				          .Invoke(parser, new object[] { separators });
+				parserType.GetTypeInfo().GetMethod("Bindings", new Type[] { typeof(BindingFlags) })
+						  .Invoke(parser, new object[] { bindingFlags });
+				
 
 				// Parse the command
 				object command = parserType.GetTypeInfo().GetMethod("Parse", new Type[] { typeof(string[]) })
@@ -201,7 +221,7 @@ namespace Commander.NET
 					// First the handler on the command object, if it implements ICommand
 					(command as ICommand).Execute(obj);
 				}
-				foreach (MethodInfo handler in Utils.GetMethods<T, CommandHandlerAttribute>())
+				foreach (MethodInfo handler in Utils.GetMethods<T, CommandHandlerAttribute>(bindingFlags))
 				{
 					// Then check if the parent object has any handler for this command
 
@@ -213,7 +233,7 @@ namespace Commander.NET
 					}
 				}
 			}
-			else if (Utils.GetCommandNames<T>().Count > 0)
+			else if (Utils.GetCommandNames<T>(bindingFlags).Count > 0)
 			{
 				// The are commands, but no command was passed
 				throw new CommandMissingException();
@@ -221,6 +241,10 @@ namespace Commander.NET
 
 			return obj;
 		}
+
+		#endregion
+
+		#region usage
 
 		/// <summary>
 		/// Generate the usage string based on the given type's attributes. 
@@ -239,11 +263,11 @@ namespace Commander.NET
 			StringBuilder usage = new StringBuilder();
 			usage.AppendFormat("Usage: {0} [options] ", executableName);
 
-			IOrderedEnumerable<MemberInfo> positionalParams = Utils.GetParameterMembers<T, PositionalParameterAttribute>()
+			IOrderedEnumerable<MemberInfo> positionalParams = Utils.GetParameterMembers<T, PositionalParameterAttribute>(bindingFlags)
 																	.OrderBy(member => member.GetCustomAttribute<PositionalParameterAttribute>().Index);
-			IOrderedEnumerable<MemberInfo> optionParams = Utils.GetParameterMembers<T, ParameterAttribute>()
+			IOrderedEnumerable<MemberInfo> optionParams = Utils.GetParameterMembers<T, ParameterAttribute>(bindingFlags)
 																	.OrderBy(member => member.GetCustomAttribute<ParameterAttribute>().Names[0]);
-			IOrderedEnumerable<MemberInfo> commands = Utils.GetParameterMembers<T, CommandAttribute>()
+			IOrderedEnumerable<MemberInfo> commands = Utils.GetParameterMembers<T, CommandAttribute>(bindingFlags)
 																	.OrderBy(member => member.GetCustomAttribute<CommandAttribute>().Names[0]);
 
 			foreach (MemberInfo member in positionalParams)
@@ -331,11 +355,10 @@ namespace Commander.NET
 			return usage.ToString();
 		}
 
-
-		#endregion
+#endregion
 
 		#region Private
-		
+
 
 		#endregion
 

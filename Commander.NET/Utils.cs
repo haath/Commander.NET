@@ -11,23 +11,23 @@ namespace Commander.NET
 {
     internal static class Utils
 	{
-		internal static IEnumerable<MemberInfo> GetParameterMembers<T, Q>() where Q : Attribute
+		internal static IEnumerable<MemberInfo> GetParameterMembers<T, Q>(BindingFlags flags) where Q : Attribute
 		{
-			foreach (MemberInfo member in typeof(T).GetTypeInfo().GetProperties())
+			foreach (MemberInfo member in typeof(T).GetTypeInfo().GetProperties(flags))
 			{
 				if (member.GetCustomAttribute<Q>() != null)
 					yield return member;
 			}
-			foreach (MemberInfo member in typeof(T).GetTypeInfo().GetFields())
+			foreach (MemberInfo member in typeof(T).GetTypeInfo().GetFields(flags))
 			{
 				if (member.GetCustomAttribute<Q>() != null)
 					yield return member;
 			}
 		}
 
-		internal static IEnumerable<MethodInfo> GetMethods<T, Q>() where Q : Attribute
+		internal static IEnumerable<MethodInfo> GetMethods<T, Q>(BindingFlags flags) where Q : Attribute
 		{
-			foreach (MethodInfo method in typeof(T).GetTypeInfo().GetMethods())
+			foreach (MethodInfo method in typeof(T).GetTypeInfo().GetMethods(flags))
 			{
 				if (method.GetCustomAttribute<Q>() != null)
 					yield return method;
@@ -79,10 +79,10 @@ namespace Commander.NET
 			.ToArray();
 		}
 
-		internal static List<string> GetCommandNames<T>()
+		internal static List<string> GetCommandNames<T>(BindingFlags bindingFlags)
 		{
 			List<string> names = new List<string>();
-			foreach (MemberInfo member in GetParameterMembers<T, CommandAttribute>())
+			foreach (MemberInfo member in GetParameterMembers<T, CommandAttribute>(bindingFlags))
 			{
 				CommandAttribute cmd = member.GetCustomAttribute<CommandAttribute>();
 
@@ -91,9 +91,9 @@ namespace Commander.NET
 			return names;
 		}
 
-		internal static MemberInfo GetCommandWithName<T>(string name)
+		internal static MemberInfo GetCommandWithName<T>(string name, BindingFlags bindingFlags)
 		{
-			foreach (MemberInfo member in GetParameterMembers<T, CommandAttribute>())
+			foreach (MemberInfo member in GetParameterMembers<T, CommandAttribute>(bindingFlags))
 			{
 				CommandAttribute cmd = member.GetCustomAttribute<CommandAttribute>();
 

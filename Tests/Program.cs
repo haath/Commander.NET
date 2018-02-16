@@ -38,8 +38,7 @@ namespace Tests
 
 			while (true)
 			{
-				string l = Prompt.ReadLine();
-				Prompt.WriteLine("=> " + l);
+				Git cmd = Prompt.ReadCommand<Git>();
 			}
 		}
 	}
@@ -47,11 +46,11 @@ namespace Tests
 	class Commit : ICommand
 	{
 		[Parameter("-m")]
-		public string Message;
+		string Message;
 
 		void ICommand.Execute(object parent)
 		{
-			// commit was issued
+			Program.Prompt.WriteLine("Committing: " + Message);
 		}
 	}
 
@@ -75,7 +74,7 @@ namespace Tests
 		[CommandHandler]
 		public void PushCommand(Push push)
 		{
-
+			Program.Prompt.WriteLine("Pusinng to " + push.Remote + " " + push.Branch);
 		}
 	}
 }
