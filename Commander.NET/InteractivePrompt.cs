@@ -59,6 +59,11 @@ namespace Commander.NET
 			WriteLine(line.ToString());
 		}
 
+		public void WriteLine(string format, params object[] args)
+		{
+			WriteLine(string.Format(format, args));
+		}
+
 		public Task<string> ReadLineAsync()
 		{
 			return Task.Run(() => ReadLine());

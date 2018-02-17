@@ -24,12 +24,27 @@ namespace Tests
 			Prompt = InteractivePrompt.GetPrompt();
 			Prompt.WriteLine(Prompt.GetType());
 
+			StringBuilder longMsg = new StringBuilder();
+			for (int i = 0; i < 100; i++)
+			{
+				longMsg.AppendLine("line" + i);
+			}
+
 			Task.Run(() =>
 			{
 				int i = 0;
 				while (true)
 				{
-					Prompt.WriteLine(i++);
+					try
+					{
+						Prompt.WriteLine(longMsg.ToString());
+						break;
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex);
+						break;
+					}
 
 
 					Thread.Sleep(500);

@@ -31,36 +31,43 @@ namespace Commander.NET
 		{
 			lock (_lock)
 			{
-
-				int inCol, inRow;
-				inCol = Console.CursorLeft;
-				inRow = Console.CursorTop;
-
-				int outLines = MessageRowCount(outCol, line) + 1;
-				int outBottom = outRow + outLines;
-				if (outBottom > OUT_HEIGHT)
-					outBottom = OUT_HEIGHT;
-				if (inRow <= outBottom)
+				foreach (string l in line.Split('\n'))
 				{
-					int scrollCount = outBottom - inRow + 1;
-					Console.MoveBufferArea(0, inRow, Console.BufferWidth, 1, 0, inRow + scrollCount);
-					inRow += scrollCount;
+					_WriteLine(l);
 				}
-				if (outRow + outLines > OUT_HEIGHT)
-				{
-					int scrollCount = outRow + outLines - OUT_HEIGHT;
-					Console.MoveBufferArea(0, scrollCount, Console.BufferWidth, OUT_HEIGHT - scrollCount, 0, 0);
-					outRow -= scrollCount;
-					Console.SetCursorPosition(outCol, outRow);
-				}
-				Console.SetCursorPosition(outCol, outRow);
-
-				Console.WriteLine(line);
-
-				outCol = Console.CursorLeft;
-				outRow = Console.CursorTop;
-				Console.SetCursorPosition(inCol, inRow);
 			}
+		}
+
+		void _WriteLine(string line)
+		{
+			int inCol, inRow;
+			inCol = Console.CursorLeft;
+			inRow = Console.CursorTop;
+
+			int outLines = MessageRowCount(outCol, line) + 1;
+			int outBottom = outRow + outLines;
+			if (outBottom > OUT_HEIGHT)
+				outBottom = OUT_HEIGHT;
+			if (inRow <= outBottom)
+			{
+				int scrollCount = outBottom - inRow + 1;
+				Console.MoveBufferArea(0, inRow, Console.BufferWidth, 1, 0, inRow + scrollCount);
+				inRow += scrollCount;
+			}
+			if (outRow + outLines > OUT_HEIGHT)
+			{
+				int scrollCount = outRow + outLines - OUT_HEIGHT;
+				Console.MoveBufferArea(0, scrollCount, Console.BufferWidth, Math.Max(OUT_HEIGHT - scrollCount, 0), 0, 0);
+				outRow -= scrollCount;
+				Console.SetCursorPosition(outCol, outRow);
+			}
+			Console.SetCursorPosition(outCol, outRow);
+
+			Console.WriteLine(line);
+
+			outCol = Console.CursorLeft;
+			outRow = Console.CursorTop;
+			Console.SetCursorPosition(inCol, inRow);
 		}
 
 		static int MessageRowCount(int startCol, string msg)
