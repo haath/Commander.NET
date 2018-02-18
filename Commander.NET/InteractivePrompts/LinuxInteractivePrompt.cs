@@ -72,6 +72,15 @@ namespace Commander.NET
 			}
 		}
 
+		public override void Write(string text)
+		{
+			lock (_lock)
+			{
+				outputBuffer[outputIndex] += text;
+				Refresh();
+			}
+		}
+
 		void Refresh()
 		{
 			StringBuilder output = new StringBuilder();

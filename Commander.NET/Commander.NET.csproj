@@ -14,7 +14,7 @@
     <Description>Command-line argument parser.</Description>
     <Summary>Command-line argument parser.</Summary>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.4</Version>
+    <Version>1.1.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

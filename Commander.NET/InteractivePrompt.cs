@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace Commander.NET
 {
@@ -21,7 +22,7 @@ namespace Commander.NET
 
 		public static InteractivePrompt GetPrompt(string prompt = ">")
 		{
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			if (IsLinux())
 			{
 				return new LinuxInteractivePrompt(prompt);
 			}
@@ -48,6 +49,11 @@ namespace Commander.NET
 			string newLines = new string('\n', OUT_HEIGHT - 1);
 			WriteLine(newLines);
 		}
+
+		public void Write(string format, params object[] args)
+		{
+			Write(string.Format(format, args));
+		}
 		
 		public void WriteLine()
 		{
@@ -64,6 +70,7 @@ namespace Commander.NET
 			WriteLine(string.Format(format, args));
 		}
 
+
 		public Task<string> ReadLineAsync()
 		{
 			return Task.Run(() => ReadLine());
@@ -71,6 +78,40 @@ namespace Commander.NET
 
 		public abstract string ReadLine();
 
+		public abstract void Write(string text);
+
 		public abstract void WriteLine(string line);
+
+
+		static bool IsLinux()
+		{
+			string windir = Environment.GetEnvironmentVariable("windir");
+			if (!string.IsNullOrEmpty(windir) && windir.Contains(@"\") && Directory.Exists(windir))
+			{
+				return false;
+			}
+			else if (File.Exists(@"/proc/sys/kernel/ostype"))
+			{
+				string osType = File.ReadAllText(@"/proc/sys/kernel/ostype");
+				if (osType.StartsWith("Linux", StringComparison.OrdinalIgnoreCase))
+				{
+					// Note: Android gets here too
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else if (File.Exists(@"/System/Library/CoreServices/SystemVersion.plist"))
+			{
+				// Note: iOS gets here too
+				return true;
+			}
+			else
+			{
+				return true;
+			}
+		}
 	}
 }

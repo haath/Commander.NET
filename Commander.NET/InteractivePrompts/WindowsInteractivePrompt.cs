@@ -27,24 +27,35 @@ namespace Commander.NET
 			return line;
 		}
 
+		public override void Write(string text)
+		{
+			lock (_lock)
+			{
+				foreach (string line in text.Split('\n'))
+				{
+					_Write(line, false);
+				}
+			}
+		}
+
 		public override void WriteLine(string line)
 		{
 			lock (_lock)
 			{
 				foreach (string l in line.Split('\n'))
 				{
-					_WriteLine(l);
+					_Write(l, true);
 				}
 			}
 		}
 
-		void _WriteLine(string line)
+		void _Write(string line, bool newLine)
 		{
 			int inCol, inRow;
 			inCol = Console.CursorLeft;
 			inRow = Console.CursorTop;
 
-			int outLines = MessageRowCount(outCol, line) + 1;
+			int outLines = MessageRowCount(outCol, line) + (newLine ? 1 : 0);
 			int outBottom = outRow + outLines;
 			if (outBottom > OUT_HEIGHT)
 				outBottom = OUT_HEIGHT;
@@ -63,7 +74,10 @@ namespace Commander.NET
 			}
 			Console.SetCursorPosition(outCol, outRow);
 
-			Console.WriteLine(line);
+			if (newLine)
+				Console.WriteLine(line);
+			else
+				Console.Write(line);
 
 			outCol = Console.CursorLeft;
 			outRow = Console.CursorTop;
