@@ -76,7 +76,8 @@ namespace Commander.NET
 		{
 			lock (_lock)
 			{
-				outputBuffer[outputIndex] += text;
+				int curIndex = outputIndex > 0 ? outputIndex - 1 : outputBuffer.Length - 1;
+				outputBuffer[curIndex] += text;
 				Refresh();
 			}
 		}
@@ -85,7 +86,7 @@ namespace Commander.NET
 		{
 			StringBuilder output = new StringBuilder();
 
-			for (int i = outputIndex; i < outputIndex + outputBuffer.Length - 1; i++)
+			for (int i = outputIndex; i < outputIndex + outputBuffer.Length; i++)
 			{
 				string line = outputBuffer[i % outputBuffer.Length];
 
@@ -99,6 +100,7 @@ namespace Commander.NET
 			{
 				output.Append(inputBuffer);
 			}
+			output.AppendLine();
 
 			Console.Clear();
 			Console.Write(output);

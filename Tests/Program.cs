@@ -25,9 +25,9 @@ namespace Tests
 			Prompt.WriteLine(Prompt.GetType());
 
 			StringBuilder longMsg = new StringBuilder();
-			for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 1; i++)
 			{
-				longMsg.AppendLine("line" + i);
+				longMsg.Append("line" + i);
 			}
 
 			Task.Run(() =>
@@ -37,13 +37,10 @@ namespace Tests
 				{
 					try
 					{
-						Prompt.WriteLine(longMsg.ToString());
-						break;
+						Prompt.Write(longMsg.ToString());
 					}
 					catch (Exception ex)
 					{
-						Console.WriteLine(ex);
-						break;
 					}
 
 
@@ -53,7 +50,8 @@ namespace Tests
 
 			while (true)
 			{
-				Git cmd = Prompt.ReadCommand<Git>();
+				string line = Prompt.ReadLine();
+				Prompt.WriteLine("=> " + line);
 			}
 		}
 	}
