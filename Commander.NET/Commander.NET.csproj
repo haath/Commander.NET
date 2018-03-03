@@ -25,4 +25,5 @@
     <DocumentationFile>bin\Debug\netstandard1.6\Commander.NET.xml</DocumentationFile>
     <Optimize>true</Optimize>
   </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
