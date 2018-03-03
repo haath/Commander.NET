@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;netstandard2.0;net45;net46;net47</TargetFrameworks>
@@ -15,17 +15,14 @@
     <Summary>Command-line argument parser.</Summary>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.1.7</Version>
-    <OutputPath>bin\$(Configuration)\$(Framework)</OutputPath>
-    <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard1.6\Commander.NET.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netstandard1.6\Commander.NET.xml</DocumentationFile>
     <Optimize>true</Optimize>
   </PropertyGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
