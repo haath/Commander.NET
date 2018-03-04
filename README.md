@@ -1,4 +1,6 @@
-# Commander.NET
+# Commander.NET 
+
+[![Build Status](https://devops.gmantaos.com/buildStatus/icon?job=Commander.NET)](https://devops.gmantaos.com/job/Commander.NET)
 
 C# command-line argument parsing and serialization via attributes. Inspired by [JCommander](http://jcommander.org/).
 
