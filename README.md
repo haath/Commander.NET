@@ -179,7 +179,7 @@ Currently available separators:
 
 ## Value validation
 
-This section lists the ways with which validate, format or even convert the values that 
+This section lists the ways with which you can validate, format or even convert the values that 
 are passed to your parameters. Each individual value, goes through the following steps in that order:
 
 1. Regex validation
@@ -214,7 +214,7 @@ catch (ParameterMatchException ex)
 
 ### Method validation
 
-You can alsouse your own validation methods for values that are passed to a specific parameter by 
+You can also use your own validation methods for values that are passed to a specific parameter by 
 implementing the `IParameterValidator` interface.
 
 If the `Validate()` method returns `false`, then a `ParameterValidationException` is thrown
@@ -327,7 +327,7 @@ When the parsing and serialization of the arguments of an object has completed, 
 variable is checked for the `ICommand` interface. If the command type implements said interface, then
 the `ICommand.Execute()` is called on that object. 
 
-The `object parent` argument that is path to this method, is the - already initialized - object, 
+The `object parent` argument that is passed to this method, is the - already initialized - object, 
 through which this command was called. In our example, this argument will contain the `Git` object.
 
 ```csharp
@@ -388,5 +388,4 @@ parser.Bindings(BindingFlags.Public | BindingFlags.Instance);
 - Reverse positional indexing
 - Passing multiple comma-separated values
 - Specifying possible values. (f.e bacon|onions|tomatoes) Will be doable by default with regex, but enum support will be nice.
-- [Commands](http://jcommander.org/#_more_complex_syntaxes_commands)
 
