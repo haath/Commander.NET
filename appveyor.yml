@@ -3,7 +3,7 @@ skip_non_tags: false
 image: Visual Studio 2017
 configuration: Release
 init:
-- ps: "function gitVersion() {\n  write-host \"Setting version according to the git release tag.\"\n\n  $branch=$env:APPVEYOR_REPO_BRANCH\n    \n  $posAfterVchar = $branch.LastIndexOf(\"v\") + 1\n  $versionLength = $branch.Length - $posAfterVchar\n      \n  $gitVersion=$branch.substring($posAfterVchar, $versionLength)\n      \n  $newVersion=\"$gitVersion\"\n     \n  write-host \"Update appveyor build version to:$newVersion\"\n  $env:appveyor_build_version=\"$newVersion\"\n  appveyor UpdateBuild -Version \"$newVersion\"\n}\nif ($env:APPVEYOR_REPO_TAG -eq $true)\n{\n  gitVersion\n}"
+- ps: "function gitVersion() {\n  write-host \"Setting version according to the git release tag.\"\n\n  $branch=$env:APPVEYOR_REPO_TAG_NAME\n    \n  $posAfterVchar = $branch.LastIndexOf(\"v\") + 1\n  $versionLength = $branch.Length - $posAfterVchar\n      \n  $gitVersion=$branch.substring($posAfterVchar, $versionLength)\n      \n  $newVersion=\"$gitVersion\"\n     \n  write-host \"Update appveyor build version to:$newVersion\"\n  $env:appveyor_build_version=\"$newVersion\"\n  appveyor UpdateBuild -Version \"$newVersion\"\n}\nif ($env:APPVEYOR_REPO_TAG -eq $true)\n{\n  gitVersion\n}"
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
