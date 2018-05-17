@@ -7,13 +7,13 @@ init:
     function gitVersion() {
       write-host "Setting version according to the git release tag."
       $branch=$env:APPVEYOR_REPO_TAG_NAME
-      $posAfterVchar = $branch.LastIndexOf(\"v\") + 1
+      $posAfterVchar = $branch.LastIndexOf("v") + 1
       $versionLength = $branch.Length - $posAfterVchar
       $gitVersion=$branch.substring($posAfterVchar, $versionLength)
-      $newVersion=\"$gitVersion\"
-      write-host \"Update appveyor build version to:$newVersion\"
-      $env:appveyor_build_version=\"$newVersion\"
-      appveyor UpdateBuild -Version \"$newVersion\"
+      $newVersion="$gitVersion"
+      write-host "Update appveyor build version to:$newVersion"
+      $env:appveyor_build_version="$newVersion"
+      appveyor UpdateBuild -Version "$newVersion"
     }
     if ($env:APPVEYOR_REPO_TAG -eq $true) {
       gitVersion
