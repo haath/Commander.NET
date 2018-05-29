@@ -5,12 +5,13 @@ VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Commander.NET", "Commander.NET\Commander.NET.csproj", "{C55C83FB-A9A7-4808-BA0C-1861C5F64A93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{63FD5CCE-2B2E-48A8-8E53-84EB22581042}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C7A8B288-DFC0-4A72-994B-4254571E7668}"
 	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Commander.NET.Tests", "Commander.NET.Tests\Commander.NET.Tests.csproj", "{CC9F3365-C460-4802-A450-63E534D83C83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +23,10 @@ Global
 		{C55C83FB-A9A7-4808-BA0C-1861C5F64A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C55C83FB-A9A7-4808-BA0C-1861C5F64A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C55C83FB-A9A7-4808-BA0C-1861C5F64A93}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63FD5CCE-2B2E-48A8-8E53-84EB22581042}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63FD5CCE-2B2E-48A8-8E53-84EB22581042}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63FD5CCE-2B2E-48A8-8E53-84EB22581042}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63FD5CCE-2B2E-48A8-8E53-84EB22581042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC9F3365-C460-4802-A450-63E534D83C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC9F3365-C460-4802-A450-63E534D83C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC9F3365-C460-4802-A450-63E534D83C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC9F3365-C460-4802-A450-63E534D83C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

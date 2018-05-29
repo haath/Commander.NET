@@ -391,4 +391,6 @@ parser.Bindings(BindingFlags.Public | BindingFlags.Instance);
 - Reverse positional indexing
 - Passing multiple comma-separated values
 - Specifying possible values. (f.e bacon|onions|tomatoes) Will be doable by default with regex, but enum support will be nice.
-
+- Value type validation within the library with custom errors
+- Recursive help flag for commands
+- Support for appending the same parameter into enumerables
