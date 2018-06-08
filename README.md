@@ -43,12 +43,6 @@ Options options = parser.Add(args)
                         .Parse();
 ```
 
-Or statically
-
-```csharp
-Options options = CommanderParser.Parse<Options>(args);
-```
-
 ## Required parameters
 
 You may specify which of the parameters are required by setting the `Required` property of the attributes.
