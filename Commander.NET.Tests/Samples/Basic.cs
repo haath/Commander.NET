@@ -16,5 +16,8 @@ namespace Commander.NET.Tests
 
 		[Parameter("n", "name", Required = Required.No)]
 		public string Name;
+
+		[PositionalParameter(0, "positional")]
+		public double Positional;
 	}
 }

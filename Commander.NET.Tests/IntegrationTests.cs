@@ -15,7 +15,7 @@ namespace Commander.NET.Tests
 			yield return
 				new object[]
 				{
-					new string[]{ "asdf" },
+					new string[]{ "" },
 					new AssertBasic(b =>
 					{
 						Assert.AreEqual(0, b.Row);
@@ -50,6 +50,27 @@ namespace Commander.NET.Tests
 					{
 						Assert.AreEqual(0, b.Row);
 						Assert.AreEqual("John", b.Name);
+					})
+				};
+			yield return
+				new object[]
+				{
+					new string[]{ "--name", "John&Doe" },
+					new AssertBasic(b =>
+					{
+						Assert.AreEqual(0, b.Row);
+						Assert.AreEqual("John&Doe", b.Name);
+					})
+				};
+			yield return
+				new object[]
+				{
+					new string[]{ "--name", "John&Doe", "0.34" },
+					new AssertBasic(b =>
+					{
+						Assert.AreEqual(0, b.Row);
+						Assert.AreEqual("John&Doe", b.Name);
+						Assert.AreEqual(0.34, b.Positional);
 					})
 				};
 		}

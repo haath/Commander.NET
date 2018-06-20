@@ -106,41 +106,57 @@ namespace Commander.NET
 		internal static string[] SplitArgumentsLine(string line)
 		{
 			List<string> args = new List<string>();
-			StringBuilder quotesArg = null;
-			string curQuote = null;
-			foreach (string part in line.Split(' '))
+
+			StringBuilder curArg = new StringBuilder();
+			char curQuote = char.MinValue;
+
+			Action reset = () =>
 			{
-				if (quotesArg == null)
+				args.Add(curArg.ToString());
+				curArg = new StringBuilder();
+				curQuote = char.MinValue;
+			};
+
+			foreach (char c in line)
+			{
+				if (curQuote == char.MinValue)
 				{
-					if ((part.StartsWith("'") && part.EndsWith("'"))
-						|| (part.StartsWith("\"") && part.EndsWith("\"")))
+					if (c == ' ')
 					{
-						args.Add(part.Substring(1, part.Length - 2));
+						reset();
 					}
-					if (part.StartsWith("'") || part.StartsWith("\""))
+					else if (c == '\'')
 					{
-						quotesArg = new StringBuilder(part.Substring(1));
-						curQuote = part.StartsWith("'") ? "'" : "\"";
+						reset();
+						curQuote = '\'';
+					}
+					else if (c == '"')
+					{
+						reset();
+						curQuote = '"';
 					}
 					else
 					{
-						args.Add(part);
+						curArg.Append(c);
 					}
 				}
 				else
 				{
-					string value = part.EndsWith(curQuote) ? part.Substring(0, part.Length - 1) : part;
-
-					quotesArg.Append(" ").Append(value);
-
-					if (part.EndsWith(curQuote))
+					if (c == curQuote)
 					{
-						args.Add(quotesArg.ToString());
-						quotesArg = null;
+						reset();
+					}
+					else
+					{
+						curArg.Append(c);
 					}
 				}
 			}
-			return args.ToArray();
+
+			reset();
+
+			return args.Where(a => !string.IsNullOrWhiteSpace(a))
+				       .ToArray();
 		}
 	}
 }

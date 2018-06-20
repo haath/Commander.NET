@@ -63,6 +63,9 @@ namespace Commander.NET.Models
 
 			for (int i = 0; i < args.Length; i++)
 			{
+				if (string.IsNullOrWhiteSpace(args[i]))
+					continue;
+
 				if ((args[i].Matches(@"^-[a-zA-Z0-9_]=\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_]{2,}=\w+$")) && separators.HasFlag(Separators.Equals)
 					|| (args[i].Matches(@"^-[a-zA-Z0-9_]:\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_]{2,}:\w+$")) && separators.HasFlag(Separators.Colon))
 				{
