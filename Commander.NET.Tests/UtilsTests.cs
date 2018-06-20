@@ -49,6 +49,30 @@ namespace Commander.NET.Tests
 					"--name \"JohnDoe\" ' pos ' 123",
 					new string[]{  "--name", "JohnDoe", " pos ", "123" }
 				};
+			yield return
+				new object[]
+				{
+					"--name \"John Doe\" ' pos ' 123",
+					new string[]{  "--name", "John Doe", " pos ", "123" }
+				};
+			yield return
+				new object[]
+				{
+					"--name \"John&Doe\" ' pos ' 123",
+					new string[]{  "--name", "John&Doe", " pos ", "123" }
+				};
+			yield return
+				new object[]
+				{
+					"--name \"John&'Doe'\" ' pos ' 123",
+					new string[]{  "--name", "John&'Doe'", " pos ", "123" }
+				};
+			yield return
+				new object[]
+				{
+					"--name \"John& 'Doe ' \" ' pos ' 123",
+					new string[]{  "--name", "John& 'Doe ' ", " pos ", "123" }
+				};
 		}
 
 		[Test, TestCaseSource("ParseTestCases")]
