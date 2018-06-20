@@ -1,4 +1,4 @@
-version: 1.2.{build}
+version: 1.1.{build}
 skip_non_tags: false
 image: Visual Studio 2017
 configuration: Release
@@ -15,6 +15,7 @@ init:
       $env:appveyor_build_version="$newVersion"
       appveyor UpdateBuild -Version "$newVersion"
     }
+
     if ($env:APPVEYOR_REPO_TAG -eq $true) {
       gitVersion
     }
