@@ -73,6 +73,17 @@ namespace Commander.NET.Tests
 						Assert.AreEqual(0.34, b.Positional);
 					})
 				};
+			yield return
+				new object[]
+				{
+					new string[]{ "--name", "John&Doe", "0.34", "-r", "12" },
+					new AssertBasic(b =>
+					{
+						Assert.AreEqual(12, b.Row);
+						Assert.AreEqual("John&Doe", b.Name);
+						Assert.AreEqual(0.34, b.Positional);
+					})
+				};
 		}
 
 
