@@ -39,6 +39,7 @@ Then simply parse the command line arguments
 string[] args = { "-i", "123", "--name", "john"};
 
 CommanderParser<Options> parser = new CommanderParser<Options>();
+
 Options options = parser.Add(args)
                         .Parse();
 ```
@@ -61,7 +62,7 @@ public string ThisOneIsRequired;
 public string ThisOneIsNotRequired = "Because it has a default value";
 ```
 
-As seen in the above example, the `Required` enum can have one of three values:
+As seen in the example above, the `Required` enum can have one of three values:
 
 - **Required.Yes**
   - This parameter is required and omitting it will throw a `ParameterMissingException` during parsing.
@@ -142,6 +143,8 @@ Usage: Tests.exe [options] <operation> [target]
 Options:
     ...
 ```
+
+Whether a parameter is required or not is defined exactly as shown [above](#required-parameters). This leaves room for error though, since for example the first positional parameter can be specified as optional and the second as required, which would leave you with a counter-intuitive interface design. The library does not currently enforce a good practice here - until a proper method of doing so is decided - so this is entirely up to the user.
 
 In general, any argument passed that is neither the name of the parameter, 
 nor the value of a non-boolean named parameter will be considered a positional parameter
