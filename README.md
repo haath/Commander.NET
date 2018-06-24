@@ -1,8 +1,8 @@
 Commander.NET 
-[![ ](https://img.shields.io/nuget/v/Commander.NET.svg)](https://www.nuget.org/packages/Commander.NET)
-[![ ](https://img.shields.io/nuget/dt/Commander.NET.svg)](https://www.nuget.org/packages/Commander.NET)
-[![ ](https://ci.appveyor.com/api/projects/status/x61d3qh08fy1n684/branch/master?svg=true)](https://ci.appveyor.com/project/gmantaos/commander-net/branch/master)
-[![ ](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![](https://img.shields.io/nuget/v/Commander.NET.svg)](https://www.nuget.org/packages/Commander.NET)
+[![](https://img.shields.io/nuget/dt/Commander.NET.svg)](https://www.nuget.org/packages/Commander.NET)
+[![](https://ci.appveyor.com/api/projects/status/x61d3qh08fy1n684/branch/master?svg=true)](https://ci.appveyor.com/project/gmantaos/commander-net/branch/master)
+[![](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ==============================
 
 C# command-line argument parsing and serialization via attributes. Inspired by [JCommander](http://jcommander.org/).
