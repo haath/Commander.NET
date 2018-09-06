@@ -66,15 +66,15 @@ namespace Commander.NET.Models
 				if (string.IsNullOrWhiteSpace(args[i]))
 					continue;
 
-				if ((args[i].Matches(@"^-[a-zA-Z0-9_]=\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_]{2,}=\w+$")) && separators.HasFlag(Separators.Equals)
-					|| (args[i].Matches(@"^-[a-zA-Z0-9_]:\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_]{2,}:\w+$")) && separators.HasFlag(Separators.Colon))
+				if ((args[i].Matches(@"^-[a-zA-Z0-9_]=\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_-]{2,}=\w+$")) && separators.HasFlag(Separators.Equals)
+					|| (args[i].Matches(@"^-[a-zA-Z0-9_]:\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_-]{2,}:\w+$")) && separators.HasFlag(Separators.Colon))
 				{
 					string key = args[i].TrimStart('-').Split(':')[0].Split('=')[0];
 					string value = args[i].Split(':').Last().Split('=').Last();
 
 					TryAddKeyValuePair(key, value);
 				}
-				else if (args[i].Matches(@"^-[a-zA-Z0-9_]$") || args[i].Matches(@"^--[a-zA-Z0-9_]{2,}$"))
+				else if (args[i].Matches(@"^-[a-zA-Z0-9_]$") || args[i].Matches(@"^--[a-zA-Z0-9_-]{2,}$"))
 				{
 					string key = args[i].TrimStart('-');
 

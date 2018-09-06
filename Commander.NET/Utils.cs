@@ -66,11 +66,11 @@ namespace Commander.NET
 		{
 			return names.Select(n =>
 			{
-				if (n.Matches(@"^-[a-zA-Z0-9_]$") || n.Matches(@"^--[a-zA-Z0-9_]{2,}$"))
+				if (n.Matches(@"^-[a-zA-Z0-9_]$") || n.Matches(@"^--[a-zA-Z0-9_-]{2,}$"))
 					return n;
-				else if (n.Matches(@"^[a-zA-Z0-9_]$"))
+				else if (n.Matches(@"^[a-zA-Z0-9_]$") && !n.StartsWith("-"))
 					return "-" + n;
-				else if (n.Matches(@"^[a-zA-Z0-9_]{2,}$"))
+				else if (n.Matches(@"^[a-zA-Z0-9_-]{2,}$") && !n.StartsWith("-"))
 					return "--" + n;
 				else
 					throw new FormatException("Invalid parameter name: " + n);

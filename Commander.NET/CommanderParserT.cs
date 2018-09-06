@@ -29,7 +29,7 @@ namespace Commander.NET
 			Add(args);
 		}
 
-		#region options
+		#region Options
 
 		public CommanderParser<T> Add(params string[] args)
 		{
@@ -75,7 +75,7 @@ namespace Commander.NET
 
 		#endregion
 
-		#region parsing
+		#region Parsing
 
 		/// <summary>
 		/// Parse the given arguments - along with any other arguments added to this object - and serialize them into a new instance of a T object.
@@ -244,7 +244,7 @@ namespace Commander.NET
 
 		#endregion
 
-		#region usage
+		#region Usage
 
 		/// <summary>
 		/// Generate the usage string based on the given type's attributes. 

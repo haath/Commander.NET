@@ -20,6 +20,7 @@ namespace Commander.NET.Tests
 					{
 						Assert.AreEqual(0, b.Row);
 						Assert.AreEqual(null, b.Name);
+						Assert.IsFalse(b.Flag);
 					})
 				};
 			yield return
@@ -30,6 +31,7 @@ namespace Commander.NET.Tests
 					{
 						Assert.AreEqual(5, b.Row);
 						Assert.AreEqual(null, b.Name);
+						Assert.IsFalse(b.Flag);
 					})
 				};
 			yield return
@@ -40,6 +42,7 @@ namespace Commander.NET.Tests
 					{
 						Assert.AreEqual(5, b.Row);
 						Assert.AreEqual("John", b.Name);
+						Assert.IsFalse(b.Flag);
 					})
 				};
 			yield return
@@ -50,6 +53,7 @@ namespace Commander.NET.Tests
 					{
 						Assert.AreEqual(0, b.Row);
 						Assert.AreEqual("John", b.Name);
+						Assert.IsFalse(b.Flag);
 					})
 				};
 			yield return
@@ -60,6 +64,7 @@ namespace Commander.NET.Tests
 					{
 						Assert.AreEqual(0, b.Row);
 						Assert.AreEqual("John&Doe", b.Name);
+						Assert.IsFalse(b.Flag);
 					})
 				};
 			yield return
@@ -71,6 +76,7 @@ namespace Commander.NET.Tests
 						Assert.AreEqual(0, b.Row);
 						Assert.AreEqual("John&Doe", b.Name);
 						Assert.AreEqual(0.34, b.Positional);
+						Assert.IsFalse(b.Flag);
 					})
 				};
 			yield return
@@ -82,6 +88,39 @@ namespace Commander.NET.Tests
 						Assert.AreEqual(12, b.Row);
 						Assert.AreEqual("John&Doe", b.Name);
 						Assert.AreEqual(0.34, b.Positional);
+						Assert.IsFalse(b.Flag);
+					})
+				};
+			yield return
+				new object[]
+				{
+					new string[]{ "--extra-args", "someValue" },
+					new AssertBasic(b =>
+					{
+						Assert.AreEqual("someValue", b.ExtraArg);
+						Assert.IsFalse(b.Flag);
+					})
+				};
+			yield return
+				new object[]
+				{
+					new string[]{ "--extra-args", "someValue", "-f" },
+					new AssertBasic(b =>
+					{
+						Assert.AreEqual("someValue", b.ExtraArg);
+						Assert.IsTrue(b.Flag);
+					})
+				};
+			yield return
+				new object[]
+				{
+					new string[]{ "--name", "John&Doe", "0.34", "--for-sure", "-r", "12" },
+					new AssertBasic(b =>
+					{
+						Assert.AreEqual(12, b.Row);
+						Assert.AreEqual("John&Doe", b.Name);
+						Assert.AreEqual(0.34, b.Positional);
+						Assert.IsTrue(b.Flag);
 					})
 				};
 		}
