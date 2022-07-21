@@ -8,7 +8,7 @@ using Commander.NET.Attributes;
 
 namespace Commander.NET.Models
 {
-    internal class RawArguments<T>
+	internal class RawArguments<T>
 	{
 		BindingFlags bindingFlags;
 		HashSet<string> booleanKeys = new HashSet<string>();
@@ -63,24 +63,35 @@ namespace Commander.NET.Models
 
 			for (int i = 0; i < args.Length; i++)
 			{
-				if (string.IsNullOrWhiteSpace(args[i]))
+				string arg = args[i];
+				if (string.IsNullOrWhiteSpace(arg))
 					continue;
-
-				if ((args[i].Matches(@"^-[a-zA-Z0-9_]=\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_-]{2,}=\w+$")) && separators.HasFlag(Separators.Equals)
-					|| (args[i].Matches(@"^-[a-zA-Z0-9_]:\w+$") || args[i].Matches(@"^--[a-zA-Z0-9_-]{2,}:\w+$")) && separators.HasFlag(Separators.Colon))
+				if ((arg.Matches(@"^-[a-zA-Z0-9_]=") || arg.Matches(@"^--[a-zA-Z0-9_-]{2,}=")) && separators.HasFlag(Separators.Equals))
 				{
-					string key = args[i].TrimStart('-').Split(':')[0].Split('=')[0];
-					string value = args[i].Split(':').Last().Split('=').Last();
+					string pair = arg.TrimStart('-');
+					int pos = pair.IndexOf('=');
+					string key = pair.Substring(0, pos);
+					string value = pair.Substring(pos + 1);
+					Console.WriteLine(key + "=" + value);
 
 					TryAddKeyValuePair(key, value);
 				}
-				else if (args[i].Matches(@"^-[a-zA-Z0-9_]$") || args[i].Matches(@"^--[a-zA-Z0-9_-]{2,}$"))
+				else if ((arg.Matches(@"^-[a-zA-Z0-9_]:") || arg.Matches(@"^--[a-zA-Z0-9_-]{2,}:")) && separators.HasFlag(Separators.Colon))
 				{
-					string key = args[i].TrimStart('-');
+					string pair = arg.TrimStart('-');
+					int pos = pair.IndexOf(':');
+					string key = pair.Substring(0, pos);
+					string value = pair.Substring(pos + 1);
+
+					TryAddKeyValuePair(key, value);
+				}
+				else if (arg.Matches(@"^-[a-zA-Z0-9_]$") || arg.Matches(@"^--[a-zA-Z0-9_-]{2,}$"))
+				{
+					string key = arg.TrimStart('-');
 
 					int intTest;
-					if (!booleanKeys.Contains(key) && i < args.Length - 1 
-						&& (!args[i + 1].StartsWith("-") || int.TryParse(args[i+1], out intTest)))
+					if (!booleanKeys.Contains(key) && i < args.Length - 1
+						&& (!args[i + 1].StartsWith("-") || int.TryParse(args[i + 1], out intTest)))
 					{
 						TryAddKeyValuePair(key, args[i + 1]);
 						i++;
@@ -90,19 +101,19 @@ namespace Commander.NET.Models
 						flags.Add(key);
 					}
 				}
-				else if (args[i].Matches(@"^-[a-zA-Z0-9_]{2,}$"))
+				else if (arg.Matches(@"^-[a-zA-Z0-9_]{2,}$"))
 				{
 					// Multiple flags
 					flags.AddRange(
-						args[i].ToCharArray().Select(c => c.ToString())
+						arg.ToCharArray().Select(c => c.ToString())
 						);
 				}
 				else
 				{
-					if (commands.Contains(args[i]))
+					if (commands.Contains(arg))
 					{
 						// We caught a command name, stop parsing
-						Command = args[i];
+						Command = arg;
 						CommandIndex = i;
 
 						return this;
@@ -110,7 +121,7 @@ namespace Commander.NET.Models
 					else
 					{
 						// No commands with this name, add it to the positional arguments
-						positionalArguments.Add(args[i]);
+						positionalArguments.Add(arg);
 					}
 				}
 			}
